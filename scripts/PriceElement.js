@@ -1,4 +1,4 @@
-export class PriceElement {
+class PriceElement {
 
     // Class to hold rectangle properties
     static Rectangle = class {
@@ -12,6 +12,8 @@ export class PriceElement {
     };
 
     static scaleFactor = 2;
+    static newPriceDivYPadding = 10;
+    static newPriceDivXPadding = 5;
     static processedElements = []; // Track processed elements
 
     constructor(top, left, width, height, displayPrice) {
@@ -27,8 +29,6 @@ export class PriceElement {
             width * PriceElement.scaleFactor,
             height * PriceElement.scaleFactor
         );
-
-        PriceElement.processedElements.push(this);
     }
 
     #createNewPriceDiv() {
@@ -37,7 +37,7 @@ export class PriceElement {
 
         newPriceDiv.style.position = "absolute";
         newPriceDiv.style.left = `${this.left + window.scrollX}px`;
-        newPriceDiv.style.padding = `${newPriceDivXPadding}px ${newPriceDivYPadding}px`;
+        newPriceDiv.style.padding = `${PriceElement.newPriceDivXPadding}px ${PriceElement.newPriceDivYPadding}px`;
         newPriceDiv.style.backgroundColor = "rgb(8, 8, 17)"; // Semi-transparent blue
         newPriceDiv.style.color = "white"; // Text color
         newPriceDiv.style.zIndex = "9999"; // Ensure it's on top

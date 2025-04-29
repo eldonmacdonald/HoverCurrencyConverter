@@ -1,4 +1,4 @@
-export class PriceElementBuilder {
+class PriceElementBuilder {
 
     constructor(converter) {
         this.converter = converter;
@@ -12,7 +12,7 @@ export class PriceElementBuilder {
 
         let convertedString = this.converter.getConvertedString(amount);
 
-        new PriceElement(
+        return new PriceElement(
             elem.getBoundingClientRect().top,
             elem.getBoundingClientRect().left,
             elem.getBoundingClientRect().width,
@@ -39,7 +39,7 @@ export class PriceElementBuilder {
             fullElemWidth = amountElem.parentElement.getBoundingClientRect().width;
         }
 
-        new PriceElement(
+        return new PriceElement(
             symbolElem.getBoundingClientRect().top,
             symbolElem.getBoundingClientRect().left,
             fullElemWidth,
@@ -63,7 +63,7 @@ export class PriceElementBuilder {
 
             let convertedString = this.converter.getConvertedString(amount);
 
-            new PriceElement(
+            return new PriceElement(
                 symbolElem.getBoundingClientRect().top,
                 symbolElem.getBoundingClientRect().left,
                 symbolElem.getBoundingClientRect().width + dollarElem.getBoundingClientRect().width + centElem.getBoundingClientRect().width,

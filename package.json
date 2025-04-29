@@ -1,0 +1,22 @@
+{
+  "name": "cadinrconverter",
+  "version": "1.0.0",
+  "description": "Converter from cad to inr for chrome",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eldonmacdonald/CadInrConverter.git"
+  },
+  "author": "Eldon MacDonald",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eldonmacdonald/CadInrConverter/issues"
+  },
+  "homepage": "https://github.com/eldonmacdonald/CadInrConverter#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
