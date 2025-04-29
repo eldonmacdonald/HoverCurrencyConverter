@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "INR Hover",
+    "version": "1.0",
+    "description": "Converts price to INR on hover",
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "js": ["script.js"]
+        }
+    ],
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ]
+}
