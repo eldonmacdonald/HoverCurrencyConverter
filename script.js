@@ -1,4 +1,3 @@
-
 let convertToCurrency = "INR"; // Default currency to convert to
 
 async function getExchangeRates() {

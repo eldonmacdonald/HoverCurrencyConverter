@@ -9,36 +9,89 @@ class CurrencyContext {
     }
 
     updateCurrencyPriceElemements() {
+
         this.clearPriceElements();
+
         this.currencySymbolFinder.currencyResults.forEach((currencyResult) => {
 
             if(!isElementVisible(currencyResult)) {
                 return;
             }
 
-            let fullRegex = new RegExp("\\" + this.currencySymbol + "\\s*[\\d,]+(\\.\\d{2})?")
-            if (fullRegex.test(currencyResult.textContent.trim())) {
-                this.priceElements.push(this.priceElementBuilder.buildFromElementContainingFullPrice(currencyResult));
-            } else {
+            if(this.currencyElementContainsFullPrice(currencyResult)) {
+                let priceElem = this.priceElementBuilder
+                                .buildFromElementContainingFullPrice
+                                (currencyResult);
+                
+                this.priceElements.push(priceElem);
+                return;
+            }
 
-                let centSiblings = getSiblingsThatMatchRegex(currencyResult, /(?<![\d])(\.\d{2})/);
-                let dollarSiblings = getSiblingsThatMatchRegex(currencyResult, /[\d,]+\.?/);
+            let fullAmountSiblings = this.getCurrencyElementFullAmountSiblings(currencyResult);
 
-                if (centSiblings.length > 0 && dollarSiblings.length > 0) {
-                    this.priceElements.push(this.priceElementBuilder.buildFromDollarAndCentElements(currencyResult, dollarSiblings[0], centSiblings[0]));
-                } else {
+            if(fullAmountSiblings.length > 0) {
+                let priceElem = this.priceElementBuilder
+                                .buildFromElementContainingFullAmount
+                                (currencyResult, fullAmountSiblings[0]);
 
-                    if(dollarSiblings.length >= 2) {
-                        this.priceElements.push(this.priceElementBuilder.buildFromDollarAndCentElements(currencyResult, dollarSiblings[0], dollarSiblings[1]));
-                    } else {
-                        let fullAmountSiblings = getSiblingsThatMatchRegex(currencyResult, /[\d,]+(\.\d{2})?/);
-                        if(fullAmountSiblings.length > 0) {
-                            this.priceElements.push(this.priceElementBuilder.buildFromElementContainingFullAmount(currencyResult, fullAmountSiblings[0]));
-                        }
-                    }
-                }
+                this.priceElements.push(priceElem);
+                return;
+            }
+
+            let integerSiblings = this.getCurrencyElementIntegerSiblings(currencyResult);
+            let decimalSiblings = this.getCurrencyElementDecimalSiblings(currencyResult);
+
+            if(integerSiblings.length > 0 && decimalSiblings.length > 0) {
+                let priceElem = this.priceElementBuilder
+                                .buildFromDollarAndCentElements
+                                (currencyResult, integerSiblings[0], decimalSiblings[0]);
+
+                this.priceElements.push(priceElem);
+                return;
+            }
+
+            if(integerSiblings.length == 1 && decimalSiblings.length <= 0) {
+                let priceElem = this.priceElementBuilder
+                                .buildFromElementContainingFullAmount
+                                (currencyResult, integerSiblings[0]);
+                
+                this.priceElements.push(priceElem);
+                return;
+            }
+            
+            if(integerSiblings.length > 1 && decimalSiblings.length <= 0) {
+                let priceElem = this.priceElementBuilder
+                                .buildFromDollarAndCentElements
+                                (currencyResult, integerSiblings[0], integerSiblings[1]);
+
+                this.priceElements.push(priceElem);
+                return;
             }
         });
+    }
+
+    currencyElementContainsFullPrice(elem) {
+        let regex = new RegExp("\\" + this.currencySymbol + "\\s*[\\d,]+(\\.[\\d]+)?");
+        let elemText = elem.textContent.trim();
+        return regex.test(elemText);
+    }
+
+    getCurrencyElementFullAmountSiblings(elem) {
+        let regex = /^\s*[\d]+\.[\d]+\s*$/
+        let fullAmountSiblings = getSiblingsThatMatchRegex(elem, regex);
+        return fullAmountSiblings;
+    }
+
+    getCurrencyElementDecimalSiblings(elem) {
+        let regex = /^\s*\.[\d]+\s*$/
+        let decimalSiblings = getSiblingsThatMatchRegex(elem, regex);
+        return decimalSiblings;
+    }
+
+    getCurrencyElementIntegerSiblings(elem) {
+        let regex = /^\s*[\d,]+\s*$/
+        let integerSiblings = getSiblingsThatMatchRegex(elem, regex);
+        return integerSiblings;
     }
 
     clearPriceElements() {
