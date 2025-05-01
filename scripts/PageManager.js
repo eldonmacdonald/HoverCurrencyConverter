@@ -11,7 +11,9 @@ class PageManager {
 
         this.delegateCurrencySymbolHandlers(this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols));
 
-        document.addEventListener("mousemove", this.manageMouseMove.bind(this), false);
+        document.addEventListener("mousemove", 
+            this.manageMouseMove.bind(this), 
+            false);
 
         this.interval = setInterval(this.executePriceElementLogic.bind(this), 500);
     }

@@ -5,19 +5,25 @@
     "description": "Converts price to INR on hover",
     "content_scripts": [
         {
-            "matches": ["*://*/*"],
-            "js": ["scripts/utils.js",
-            "scripts/CurrencyConverter.js",
-            "scripts/CurrencySymbolFinder.js",
-            "scripts/CurrencyContext.js",
-            "scripts/PageManager.js",
-            "scripts/PriceElement.js",
-            "scripts/PriceElementBuilder.js",
-            "main.js"]
+            "matches": ["*://*/*", "file:///*"],
+            "js": [
+                "scripts/utils.js",
+                "scripts/CurrencyConverter.js",
+                "scripts/CurrencySymbolFinder.js",
+                "scripts/CurrencyContext.js",
+                "scripts/PageManager.js",
+                "scripts/PriceElement.js",
+                "scripts/PriceElementBuilder.js",
+                "main.js"
+            ]
         }
     ],
     "permissions": [
         "activeTab",
         "scripting"
+    ],
+    "host_permissions": [
+        "*://*/*",
+        "file:///*"
     ]
 }
