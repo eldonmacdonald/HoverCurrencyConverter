@@ -9,17 +9,48 @@ class PageManager {
 
         this.currencyContexts = [];
 
-        this.delegateCurrencySymbolHandlers(this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols));
+        this.delegateCurrencySymbolHandlers(
+            this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
+        );
+
+        this.currencyContexts.forEach((currencyContext) => {
+            currencyContext.currencySymbolFinder.currencyResults.onChange(
+                (v) => {
+                    this.newSymbolEvent(currencyContext);
+                }
+            )
+        })
 
         document.addEventListener("mousemove", 
             this.manageMouseMove.bind(this), 
-            false);
+            false
+        );
 
-        this.interval = setInterval(this.executePriceElementLogic.bind(this), 500);
+        document.addEventListener('scroll',
+            this.scrollEvent.bind(this)
+        )
+        
+        document.addEventListener('scrollend', 
+            this.scrollEndEvent.bind(this)
+        );
     }
 
     static createXPathStringForSymbol(symbol) {
         return `//*[child::text()[contains(., '${symbol}')] and not(ancestor::*[contains(@style, 'display:none') or contains(@style, 'visibility:hidden')])]`
+    }
+
+    scrollEvent() {
+        this.currencyContexts.forEach((currencyContext) => {
+            currencyContext.clearPriceElements();
+        });
+    }
+
+    scrollEndEvent() {
+        this.executePriceElementLogic();
+    }
+
+    newSymbolEvent(currencyContext) {
+        currencyContext.updateCurrencyPriceElemements();
     }
 
     findCurrencySymbolsOnPage(currencySymbolsToCheck) {

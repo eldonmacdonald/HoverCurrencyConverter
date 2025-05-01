@@ -12,7 +12,8 @@ class CurrencyContext {
 
         this.clearPriceElements();
 
-        this.currencySymbolFinder.currencyResults.forEach((currencyResult) => {
+        this.currencySymbolFinder.currencyResults.getValue().forEach(
+            (currencyResult) => {
 
             if(!isElementVisible(currencyResult)) {
                 return;
