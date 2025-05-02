@@ -1,5 +1,55 @@
 class CurrencySymbolFinder {
 
+    static tagsThatContainVisualText = [
+        "tt",
+        "i",
+        "b",
+        "big",
+        "small",
+        "em",
+        "strong",
+        "dfn",
+        "code",
+        "samp",
+        "kbd",
+        "var",
+        "cite",
+        "abbr",
+        "acronym",
+        "sup",
+        "span",
+        "bdo",
+        "address",
+        "div",
+        "a",
+        "object",
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "pre",
+        "q",
+        "ins",
+        "del",
+        "dt",
+        "dd",
+        "li",
+        "label",
+        "option",
+        "textarea",
+        "fieldset",
+        "legend",
+        "button",
+        "caption",
+        "td",
+        "th",
+        "title",
+        "blockquote"
+    ];
+
     constructor(currencySymbol, currency) {
         this.currency = currency;
         this.currencySymbol = currencySymbol;
@@ -50,7 +100,8 @@ class CurrencySymbolFinder {
 
     static filterCurrencyResults(currencyResults) {
         return currencyResults.filter( (currencyResult) => {
-            return !/[{}()]/.test(currencyResult.textContent.trim())
+            return this.tagsThatContainVisualText.includes
+                (currencyResult.tagName.toLowerCase());
         })
     }
 }

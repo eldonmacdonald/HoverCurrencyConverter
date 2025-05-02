@@ -9,6 +9,8 @@ class PageManager {
 
         this.currencyContexts = [];
 
+        this.priceFrame = new PriceFrame();
+
         this.delegateCurrencySymbolHandlers(
             this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
         );
@@ -51,6 +53,7 @@ class PageManager {
 
     newSymbolEvent(currencyContext) {
         currencyContext.updateCurrencyPriceElemements();
+        this.checkHovering();
     }
 
     findCurrencySymbolsOnPage(currencySymbolsToCheck) {
@@ -123,14 +126,15 @@ class PageManager {
                     if (this.mousePosX >= rect.left && this.mousePosX <= rect.left + rect.width &&
                         this.mousePosY >= rect.top && this.mousePosY <= rect.top + rect.height) {
                         hoveringElems.push(priceElement);
-                    } else {
-                        if(priceElement.hovering) {
-                            priceElement.unsetHover();
-                        }
                     }
                 }
             });
         });
+
+        if(hoveringElems.length <= 0) {
+            this.priceFrame.hidePriceDiv();
+            return;
+        }
     
         let closest = null;
         hoveringElems.forEach((instance) => {
@@ -154,14 +158,10 @@ class PageManager {
         });
     
         if (closest) {
-            closest.setHover();
-        }
-    
-        // Remove hover effect from elements that are not the closest   
-        hoveringElems.forEach((instance) => {
-            if (instance !== closest && instance.hovering) {
-                instance.unsetHover();
+            this.priceFrame.displayPriceElementInfoOnPriceDiv(closest);
+            if(!this.priceFrame.isPriceDivVisible()) {
+                this.priceFrame.showPriceDiv();
             }
-        });
+        }
     }
 }

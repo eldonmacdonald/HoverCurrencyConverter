@@ -12,6 +12,7 @@
                 "scripts/CurrencyConverter.js",
                 "scripts/CurrencySymbolFinder.js",
                 "scripts/CurrencyContext.js",
+                "scripts/PriceFrame.js",
                 "scripts/PageManager.js",
                 "scripts/PriceElement.js",
                 "scripts/PriceElementBuilder.js",
@@ -26,5 +27,9 @@
     "host_permissions": [
         "*://*/*",
         "file:///*"
-    ]
+    ],
+    "web_accessible_resources": [{
+        "resources": ["resources/frame.html"],
+        "matches": ["*://*/*", "file:///*"]
+    }]
 }
