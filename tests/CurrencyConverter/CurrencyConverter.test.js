@@ -2,7 +2,7 @@ beforeEach(async () => {
     await page.goto("file://"+__dirname+"/CurrencyConverterTests.html");
 });
 
-describe('CurrencyConverter', () => {
+describe('CurrencyConverter.js', () => {
 
     it('getExchangeRates_GetRatesForINRTest()', async () => {
         let rates = await page.evaluate(async () => {

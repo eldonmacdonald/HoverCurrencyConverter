@@ -12,11 +12,14 @@ class PriceElementBuilder {
 
         let convertedString = this.converter.getConvertedString(amount);
 
+        let range = document.createRange();
+        range.selectNode(elem);
+
         return new PriceElement(
-            elem.getBoundingClientRect().top,
-            elem.getBoundingClientRect().left,
-            elem.getBoundingClientRect().width,
-            elem.getBoundingClientRect().height,
+            range.getBoundingClientRect().top,
+            range.getBoundingClientRect().left,
+            range.getBoundingClientRect().width,
+            range.getBoundingClientRect().height,
             convertedString
         );
     }
@@ -29,21 +32,15 @@ class PriceElementBuilder {
 
         let convertedString = this.converter.getConvertedString(amount);
 
-        let fullElemHeight;
-        let fullElemWidth;
-        try {
-            fullElemHeight = amountElem.getBoundingClientRect().height;
-            fullElemWidth = symbolElem.getBoundingClientRect().width + amountElem.getBoundingClientRect().width;
-        } catch (e) {
-            fullElemHeight = amountElem.parentElement.getBoundingClientRect().height;
-            fullElemWidth = amountElem.parentElement.getBoundingClientRect().width;
-        }
+        let range = document.createRange();
+        range.setStartBefore(symbolElem);
+        range.setEndAfter(amountElem);
 
         return new PriceElement(
-            symbolElem.getBoundingClientRect().top,
-            symbolElem.getBoundingClientRect().left,
-            fullElemWidth,
-            fullElemHeight,
+            range.getBoundingClientRect().top,
+            range.getBoundingClientRect().left,
+            range.getBoundingClientRect().width,
+            range.getBoundingClientRect().height,
             convertedString
         );
     }
@@ -63,11 +60,15 @@ class PriceElementBuilder {
 
             let convertedString = this.converter.getConvertedString(amount);
 
+            let range = document.createRange();
+            range.setStartBefore(symbolElem);
+            range.setEndAfter(centElem);
+
             return new PriceElement(
-                symbolElem.getBoundingClientRect().top,
-                symbolElem.getBoundingClientRect().left,
-                symbolElem.getBoundingClientRect().width + dollarElem.getBoundingClientRect().width + centElem.getBoundingClientRect().width,
-                symbolElem.getBoundingClientRect().height,
+                range.getBoundingClientRect().top,
+                range.getBoundingClientRect().left,
+                range.getBoundingClientRect().width,
+                range.getBoundingClientRect().height,
                 convertedString
             );
         }

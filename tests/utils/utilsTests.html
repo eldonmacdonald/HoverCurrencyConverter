@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>utils.js Testing Page</title>
+</head>
+<body>
+
+    <span id="span-integer-no-matches">
+        <span class="start-sibling"></span>
+        <span>This text contains no integers, and therefore should not match an
+            integer regex!
+        </span>
+    </span>
+
+    <span id="span-full-amount-14.99">
+        <span class="start-sibling">$</span>
+        <span class="expected-return">14.99</span>
+    </span>
+
+    <div id="div-full-amount-14.99">
+        <div class="start-sibling">$</div>
+        <div>14.99</div>
+    </div>
+
+    <span id="span-full-amount-14.99-text-node">
+        <span class="start-sibling">$</span>
+        <span>
+            14.99
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Huskiesatrest.jpg/250px-Huskiesatrest.jpg">
+        </span>
+    </span>
+
+    <section id="section-integer-no-matches-integers-parent-siblings">
+        <span>
+            249
+            <span>
+                <span class="start-sibling">$</span>
+            </span>
+            <span>99</span>
+        </span>
+    </section>
+
+    <section id="section-2-integers-249-99-nested-with-noise-text-node">
+        <span class="start-sibling">$</span>
+        <span>
+            This is a little bit of noise!
+            <span>
+                <span>249</span>
+            </span>
+            <span>99</span>
+        </span>
+    </section>
+
+    <span id="spans-2-integers-249-99-249-text-node-with-noise-sibling">
+        <span class="start-sibling" class="a-price-symbol">$</span>
+        <span class="a-price-whole">
+            249
+            <span class="a-price-decimal">.</span>
+        </span>
+        <span class="a-price-fraction">99</span>
+    </span>
+</body>
+<script src="../../scripts/utils.js"></script>
+<script src="utilsTests.js"></script>
+</html>

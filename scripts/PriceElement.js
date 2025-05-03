@@ -11,8 +11,6 @@ class PriceElement {
         }
     };
 
-    static scaleFactor = 2;
-
     constructor(top, left, width, height, displayPrice) {
         this.top = top;
         this.left = left;
@@ -23,8 +21,8 @@ class PriceElement {
         this.hoverRect = new PriceElement.Rectangle(
             top,
             left,
-            width * PriceElement.scaleFactor,
-            height * PriceElement.scaleFactor
+            width + 10,
+            height + 10
         );
     }
 

@@ -6,18 +6,23 @@ class PriceFrame {
         this.frame.style.position = "fixed";
         this.frame.style.pointerEvents = "none";
 
-
         this.frame.style.width = window.innerWidth + "px";
         this.frame.style.height = window.innerHeight + "px";
+
         window.addEventListener('resize', () => {
-            this.frame.style.width = window.innerWidth + "px";
-            this.frame.style.height = window.innerHeight + "px";
+            if(this.resizeTimeout) {
+                clearTimeout(this.resizeTimeout);
+            }
+            this.resizeTimeout = setTimeout(() => {
+                this.frame.style.width = window.innerWidth + "px";
+                this.frame.style.height = window.innerHeight + "px";
+            }, 300);
         })
 
         this.frame.style.top = "0px";
         this.frame.style.left = "0px";
 
-        this.frame.style.border = "none";
+        //this.frame.style.border = "none";
         this.frame.style.zIndex = "9999";
 
         fetch(chrome.runtime.getURL("resources/frame.html"))

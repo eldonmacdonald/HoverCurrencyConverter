@@ -1,33 +1,21 @@
 function getSiblingsThatMatchRegex(element, regex) {
     const siblings = Array.from(element.parentNode.childNodes); // Include all child nodes (elements + text nodes)
-
-    function matchesRegex(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            return regex.test(node.nodeValue.trim());
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-            return regex.test(node.textContent.trim());
-        }
-        return false;
+    
+    let matchedElements = [];
+    function recursiveCheckChildren(elemArr) {
+        let tmpArr = Array.from(elemArr);
+        tmpArr.forEach(elem => {
+            if (elem.hasChildNodes()) {
+                recursiveCheckChildren(elem.childNodes);
+            } else if (regex.test(elem.nodeValue)) {
+                matchedElements.push(elem);
+            }
+        })
     }
 
-    function checkDescendants(node) {
-        if (matchesRegex(node)) {
-            return true;
-        }
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            return Array.from(node.childNodes).some(checkDescendants);
-        }
-        return false;
-    }
+    recursiveCheckChildren(siblings);
 
-    let matchedSiblings = siblings.filter((sibling) => {
-        if (sibling === element) {
-            return false; // Skip the element itself
-        }
-        return checkDescendants(sibling);
-    });
-
-    return matchedSiblings;
+    return matchedElements;
 }
 
 function isElementVisible(element) {

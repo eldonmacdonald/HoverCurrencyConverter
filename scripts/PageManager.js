@@ -42,9 +42,7 @@ class PageManager {
     }
 
     scrollEvent() {
-        this.currencyContexts.forEach((currencyContext) => {
-            currencyContext.clearPriceElements();
-        });
+        this.priceFrame.hidePriceDiv();
     }
 
     scrollEndEvent() {
