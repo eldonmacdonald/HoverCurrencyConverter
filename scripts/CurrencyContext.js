@@ -6,6 +6,8 @@ class CurrencyContext {
         this.currencySymbolFinder = new CurrencySymbolFinder(currencySymbol, currency);
         this.currencyConverter = new CurrencyConverter(currency, convertToCurrency, exchangeRates, localeFormat);
         this.priceElementBuilder = new PriceElementBuilder(this.currencyConverter);
+
+        this.priceRegex = /[\d,]+(\.[\d]+)?/;
     }
 
     updateCurrencyPriceElemements() {
@@ -28,47 +30,59 @@ class CurrencyContext {
                 return;
             }
 
-            let fullAmountSiblings = this.getCurrencyElementFullAmountSiblings(currencyResult);
-
-            if(fullAmountSiblings.length > 0) {
-                let priceElem = this.priceElementBuilder
-                                .buildFromElementContainingFullAmount
-                                (currencyResult, fullAmountSiblings[0]);
-
-                this.priceElements.push(priceElem);
-                return;
-            }
-
-            let integerSiblings = this.getCurrencyElementIntegerSiblings(currencyResult);
-            let decimalSiblings = this.getCurrencyElementDecimalSiblings(currencyResult);
-
-            if(integerSiblings.length > 0 && decimalSiblings.length > 0) {
-                let priceElem = this.priceElementBuilder
-                                .buildFromDollarAndCentElements
-                                (currencyResult, integerSiblings[0], decimalSiblings[0]);
-
-                this.priceElements.push(priceElem);
-                return;
-            }
-
-            if(integerSiblings.length == 1 && decimalSiblings.length <= 0) {
-                let priceElem = this.priceElementBuilder
-                                .buildFromElementContainingFullAmount
-                                (currencyResult, integerSiblings[0]);
-                
-                this.priceElements.push(priceElem);
-                return;
-            }
-            
-            if(integerSiblings.length > 1 && decimalSiblings.length <= 0) {
-                let priceElem = this.priceElementBuilder
-                                .buildFromDollarAndCentElements
-                                (currencyResult, integerSiblings[0], integerSiblings[1]);
-
-                this.priceElements.push(priceElem);
-                return;
-            }
+            this.buildPriceElementThroughParent(currencyResult);
         });
+    }
+
+    buildPriceElementThroughParent(elem) {
+        const parentBoundingRect = elem.parentNode.getBoundingClientRect();
+
+        let price;
+        try {
+            price = this.getPriceFromParentText(elem);
+        } catch (e) {
+            console.warn(e.message);
+        }
+
+        const convertedPrice = this.currencyConverter.getConvertedString(price);
+
+        let priceElem = new PriceElement(
+            parentBoundingRect.top,
+            parentBoundingRect.left,
+            parentBoundingRect.width,
+            parentBoundingRect.height,
+            convertedPrice
+        );
+
+        this.priceElements.push(priceElem);
+    }
+
+    getPriceFromParentText(elem) {
+        const parentInnerText = elem.parentNode.textContent;
+        const indexInParent = this.findIndexOfElementTextInParentInnerText(elem);
+
+        const substringFromIndex = parentInnerText.substring(indexInParent);
+        const priceMatches = substringFromIndex.match(this.priceRegex);
+
+        if(!priceMatches || priceMatches.length <= 0) {
+            throw new Error(`Tried to find the price associated with the following parent text,` + 
+                `but found no price regex matches: ${parentInnerText.trim()}`);
+        }
+
+        const cleanPrice = priceMatches[0].replace(/,/g, '');
+
+        return parseFloat(cleanPrice);
+    }
+
+    findIndexOfElementTextInParentInnerText(elem) {
+        let index = 0;
+        elem.parentNode.childNodes.forEach(sibling => {
+            if(sibling === elem) {
+                return index;
+            }
+
+            index += sibling.textContent.length;
+        })
     }
 
     currencyElementContainsFullPrice(elem) {

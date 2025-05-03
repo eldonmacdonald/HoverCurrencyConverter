@@ -101,7 +101,7 @@ class CurrencySymbolFinder {
 
     static filterCurrencyResults(currencyResults) {
         return currencyResults.filter( (currencyResult) => {
-            return this.tagsThatContainVisualText.includes
+            return !/[{}]/.test(currencyResult.innerText) && this.tagsThatContainVisualText.includes
                 (currencyResult.tagName.toLowerCase());
         })
     }
