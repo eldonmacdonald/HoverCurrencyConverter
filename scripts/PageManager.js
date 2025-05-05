@@ -101,33 +101,28 @@ class PageManager {
             this.priceFrame.hidePriceDiv();
             return;
         }
-    
-        let closest = null;
-        hoveringElems.forEach((instance) => {
-            if(!closest) {
-                closest = instance;
-            }
-            
-            const closestRect = closest.getBoundingClientRect();
-            const currentDistance = Math.sqrt(
-                Math.pow(this.mousePosX - closestRect.left, 2) +
-                Math.pow(this.mousePosY - closestRect.top, 2)
+        
+        hoveringElems.sort((a, b) => {
+            const rectA = a.getBoundingClientRect();
+            const rectB = b.getBoundingClientRect();
+
+            const distanceA = Math.sqrt(
+                Math.pow(this.mousePosX - rectA.left, 2) +
+                Math.pow(this.mousePosY - rectA.top, 2)
             );
-            
-            const instanceRect = instance.getBoundingClientRect();
-            const newDistance = Math.sqrt(
-                Math.pow(this.mousePosX - instanceRect.left, 2) +
-                Math.pow(this.mousePosY - instanceRect.top, 2)
+
+            const distanceB = Math.sqrt(
+                Math.pow(this.mousePosX - rectB.left, 2) +
+                Math.pow(this.mousePosY - rectB.top, 2)
             );
-    
-            if (newDistance < currentDistance) {
-                closest = instance;
-            }
+
+            return distanceA - distanceB;
         });
-    
-        if (closest) {
-            if(closest.isVisible()) {
-                this.priceFrame.displayPriceElementInfoOnPriceDiv(closest);
+
+        for(let hoveringElemIndex = 0; hoveringElemIndex < hoveringElems.length; hoveringElemIndex++) {
+            let currElem = hoveringElems[hoveringElemIndex];
+            if(currElem.isVisible()) {
+                this.priceFrame.displayPriceElementInfoOnPriceDiv(currElem);
                 if(!this.priceFrame.isPriceDivVisible()) {
                     this.priceFrame.showPriceDiv();
                 }
