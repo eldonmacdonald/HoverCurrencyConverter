@@ -21,17 +21,36 @@ class CurrencyContext {
                 return;
             }
 
-            if(this.currencyElementContainsFullPrice(currencyResult)) {
-                let priceElem = this.priceElementBuilder
-                                .buildFromElementContainingFullPrice
-                                (currencyResult);
-                
-                this.priceElements.push(priceElem);
-                return;
+            if(this.isPriceContainedInSingleElement(currencyResult)) {
+                this.buildPriceElementFromSingleElement(currencyResult)
+            } else {
+                this.buildPriceElementThroughParent(currencyResult);
             }
-
-            this.buildPriceElementThroughParent(currencyResult);
         });
+    }
+
+    isPriceContainedInSingleElement(elem) {
+        return this.priceRegex.test(elem.textContent.trim());
+    }
+
+    buildPriceElementFromSingleElement(elem) {
+        const elemText = elem.textContent.trim();
+        const priceMatch = elemText.match(/[\d,]+(\.\d{2})?/);
+        const cleanPrice = priceMatch[0].replace(/,/g, '');
+        const price = parseFloat(cleanPrice);
+
+        const convertedPrice = this.currencyConverter.getConvertedString(price);
+        
+        const boundingRect = elem.getBoundingClientRect();
+        const priceElem = new PriceElement(
+            boundingRect.top,
+            boundingRect.left,
+            boundingRect.width,
+            boundingRect.height,
+            convertedPrice
+        );
+
+        this.priceElements.push(priceElem);
     }
 
     buildPriceElementThroughParent(elem) {
