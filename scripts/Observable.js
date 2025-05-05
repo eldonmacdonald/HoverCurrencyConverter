@@ -9,8 +9,8 @@ class Observable {
 
     setValue(value) {
         if(this.#value != value) {
-            this.#value = value;
             this.#raiseChangedEvent(value);
+            this.#value = value;
         }
     }
 

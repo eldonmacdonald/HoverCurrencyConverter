@@ -45,8 +45,9 @@ class PriceFrame {
 
     displayPriceElementInfoOnPriceDiv(priceElement) {
         if(this.initialized) {
-            this.priceDiv.style.top = `${priceElement.top - this.priceDiv.offsetHeight}px`;
-            this.priceDiv.style.left = `${priceElement.left}px`
+            const priceElementRect = priceElement.getBoundingClientRect();
+            this.priceDiv.style.top = `${priceElementRect.top - this.priceDiv.offsetHeight}px`;
+            this.priceDiv.style.left = `${priceElementRect.left}px`
 
             this.priceDiv.innerText = priceElement.displayPrice;
         }

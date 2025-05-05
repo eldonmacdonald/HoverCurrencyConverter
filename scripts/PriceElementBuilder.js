@@ -2,75 +2,93 @@ class PriceElementBuilder {
 
     constructor(converter) {
         this.converter = converter;
+
+        this.priceRegex = /[\d,]+(\.[\d]+)?/;
     }
 
-    buildFromElementContainingFullPrice(elem) {
-        let elemText = elem.textContent.trim();
-        let priceMatch = elemText.match(/[\d,]+(\.\d{2})?/);
+    buildPriceElementsFromCurrencySymbolElementArray(currencySymbolElementArray) {
+        let priceElems = [];
+
+        currencySymbolElementArray.forEach(currencySymbolElem => {
+            if(this.isPriceContainedInSingleElement(currencySymbolElem)) {
+                let priceElem = this.buildPriceElementFromSingleElement(currencySymbolElem);
+                priceElems.push(priceElem);
+            } else {
+                let priceElem = this.buildPriceElementThroughParent(currencySymbolElem);
+                priceElems.push(priceElem);
+            }
+        });
+
+        return priceElems;
+    }
+
+    isPriceContainedInSingleElement(elem) {
+        return this.priceRegex.test(elem.textContent);
+    }
+
+    buildPriceElementFromSingleElement(elem) {
+        const elemText = elem.textContent.trim();
+        const priceMatch = elemText.match(this.priceRegex);
         const cleanPrice = priceMatch[0].replace(/,/g, '');
-        let amount = parseFloat(cleanPrice);
+        const price = parseFloat(cleanPrice);
 
-        let convertedString = this.converter.getConvertedString(amount);
+        let convertedPrice = this.converter.getConvertedString(price);
 
-        let range = document.createRange();
-        range.selectNode(elem);
-
-        return new PriceElement(
-            range.getBoundingClientRect().top,
-            range.getBoundingClientRect().left,
-            range.getBoundingClientRect().width,
-            range.getBoundingClientRect().height,
-            convertedString
+        let priceElem = new PriceElement(
+            convertedPrice,
+            elem
         );
+
+        return priceElem;
     }
 
-    buildFromElementContainingFullAmount(symbolElem, amountElem) {
-        let amountText = amountElem.textContent.trim();
-        let priceMatch = amountText.match(/[\d,]+(\.\d{2})?/);
-        const cleanPrice = priceMatch[0].replace(/,/g, '');
-        let amount = parseFloat(cleanPrice);
-
-        let convertedString = this.converter.getConvertedString(amount);
-
-        let range = document.createRange();
-        range.setStartBefore(symbolElem);
-        range.setEndAfter(amountElem);
-
-        return new PriceElement(
-            range.getBoundingClientRect().top,
-            range.getBoundingClientRect().left,
-            range.getBoundingClientRect().width,
-            range.getBoundingClientRect().height,
-            convertedString
-        );
-    }
-
-    buildFromDollarAndCentElements(symbolElem, dollarElem, centElem) {
-        let dollarText = dollarElem.textContent.trim();
-        let centText = centElem.textContent.trim();
-
-        let dollarMatch = dollarText.match(/[\d,]+/);
-        let centMatch = centText.match(/[\d,]+/);
-
-        if(dollarMatch && centMatch) {
-            const cleanDollarPrice = dollarMatch[0].replace(/,/g, '');
-            const cleanCentPrice = centMatch[0].replace(/,/g, '');
-
-            let amount = parseFloat(cleanDollarPrice) + (parseFloat(cleanCentPrice) / 100);
-
-            let convertedString = this.converter.getConvertedString(amount);
-
-            let range = document.createRange();
-            range.setStartBefore(symbolElem);
-            range.setEndAfter(centElem);
-
-            return new PriceElement(
-                range.getBoundingClientRect().top,
-                range.getBoundingClientRect().left,
-                range.getBoundingClientRect().width,
-                range.getBoundingClientRect().height,
-                convertedString
-            );
+    buildPriceElementThroughParent(elem) {
+        let price;
+        try {
+            price = this.getPriceFromParentText(elem);
+        } catch (e) {
+            console.warn(e.message);
         }
+
+        let convertedPrice = this.converter.getConvertedString(price);
+
+        let priceElem = new PriceElement(
+            convertedPrice,
+            elem.parentNode
+        );
+
+        return priceElem;
+    }
+
+    getPriceFromParentText(elem) {
+        const parentInnerText = elem.parentNode.textContent;
+        const indexInParent = this.findIndexOfElementTextInParentInnerText(elem);
+
+        const substringFromIndex = parentInnerText.substring(indexInParent);
+        const priceMatches = substringFromIndex.match(this.priceRegex);
+
+        if(!priceMatches || priceMatches.length <= 0) {
+            throw new Error(`Tried to find the price associated with the following parent text,` + 
+                `but found no price regex matches: ${parentInnerText.trim()}`);
+        }
+
+        const cleanPrice = priceMatches[0].replace(/,/g, '');
+
+        return parseFloat(cleanPrice);
+    }
+
+    findIndexOfElementTextInParentInnerText(elem) {
+        let index = 0;
+        const siblings = elem.parentNode.childNodes;
+        for(let siblingIndex = 0; siblings.item(siblingIndex); siblingIndex++) {
+            const curr = siblings.item(siblingIndex);
+            if(curr === elem) {
+                return index;
+            }
+
+            index += curr.textContent.length;
+        }
+
+        throw new Error("child not found in parent element");
     }
 }

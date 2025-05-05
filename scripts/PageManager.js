@@ -15,14 +15,6 @@ class PageManager {
             this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
         );
 
-        this.currencyContexts.forEach((currencyContext) => {
-            currencyContext.currencySymbolFinder.currencyResults.onChange(
-                (v) => {
-                    this.newSymbolEvent(currencyContext);
-                }
-            )
-        })
-
         document.addEventListener("mousemove", 
             this.manageMouseMove.bind(this), 
             false
@@ -31,10 +23,6 @@ class PageManager {
         document.addEventListener('scroll',
             this.scrollEvent.bind(this)
         )
-        
-        document.addEventListener('scrollend', 
-            this.scrollEndEvent.bind(this)
-        );
     }
 
     static createXPathStringForSymbol(symbol) {
@@ -43,15 +31,6 @@ class PageManager {
 
     scrollEvent() {
         this.priceFrame.hidePriceDiv();
-    }
-
-    scrollEndEvent() {
-        this.executePriceElementLogic();
-    }
-
-    newSymbolEvent(currencyContext) {
-        currencyContext.updateCurrencyPriceElemements();
-        this.checkHovering();
     }
 
     findCurrencySymbolsOnPage(currencySymbolsToCheck) {
@@ -104,27 +83,16 @@ class PageManager {
         this.checkHovering();
     }
 
-    executePriceElementLogic() {
-        
-        this.currencyContexts.forEach((currencyContext) => {
-            currencyContext.updateCurrencyPriceElemements();
-        });
-
-        this.checkHovering(); // Check for hovering on existing elements
-    }
-
     checkHovering() {
 
         let hoveringElems = [];
 
         this.currencyContexts.forEach((currencyContext) => {
             currencyContext.priceElements.forEach((priceElement) => {
-                if(priceElement.hoverRect) {
-                    const rect = priceElement.hoverRect;
-                    if (this.mousePosX >= rect.left && this.mousePosX <= rect.left + rect.width &&
-                        this.mousePosY >= rect.top && this.mousePosY <= rect.top + rect.height) {
-                        hoveringElems.push(priceElement);
-                    }
+                const rect = priceElement.getBoundingClientRect();
+                if (this.mousePosX >= rect.left && this.mousePosX <= rect.left + rect.width &&
+                    this.mousePosY >= rect.top && this.mousePosY <= rect.top + rect.height) {
+                    hoveringElems.push(priceElement);
                 }
             });
         });
@@ -139,15 +107,17 @@ class PageManager {
             if(!closest) {
                 closest = instance;
             }
-    
+            
+            const closestRect = closest.getBoundingClientRect();
             const currentDistance = Math.sqrt(
-                Math.pow(this.mousePosX - closest.hoverRect.left, 2) +
-                Math.pow(this.mousePosY - closest.hoverRect.top, 2)
+                Math.pow(this.mousePosX - closestRect.left, 2) +
+                Math.pow(this.mousePosY - closestRect.top, 2)
             );
-    
+            
+            const instanceRect = instance.getBoundingClientRect();
             const newDistance = Math.sqrt(
-                Math.pow(this.mousePosX - instance.hoverRect.left, 2) +
-                Math.pow(this.mousePosY - instance.hoverRect.top, 2)
+                Math.pow(this.mousePosX - instanceRect.left, 2) +
+                Math.pow(this.mousePosY - instanceRect.top, 2)
             );
     
             if (newDistance < currentDistance) {
@@ -156,9 +126,11 @@ class PageManager {
         });
     
         if (closest) {
-            this.priceFrame.displayPriceElementInfoOnPriceDiv(closest);
-            if(!this.priceFrame.isPriceDivVisible()) {
-                this.priceFrame.showPriceDiv();
+            if(closest.isVisible()) {
+                this.priceFrame.displayPriceElementInfoOnPriceDiv(closest);
+                if(!this.priceFrame.isPriceDivVisible()) {
+                    this.priceFrame.showPriceDiv();
+                }
             }
         }
     }
