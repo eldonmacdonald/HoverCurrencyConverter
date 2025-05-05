@@ -88,13 +88,12 @@ class PageManager {
         let hoveringElems = [];
 
         this.currencyContexts.forEach((currencyContext) => {
-            currencyContext.priceElements.forEach((priceElement) => {
-                const rect = priceElement.getBoundingClientRect();
-                if (this.mousePosX >= rect.left && this.mousePosX <= rect.left + rect.width &&
-                    this.mousePosY >= rect.top && this.mousePosY <= rect.top + rect.height) {
-                    hoveringElems.push(priceElement);
-                }
-            });
+            let hoveringElemsContext = this.getElementsThatContainPoint(
+                currencyContext.priceElements,
+                this.mousePosX,
+                this.mousePosY
+            );
+            hoveringElems = hoveringElems.concat(hoveringElemsContext);
         });
 
         if(hoveringElems.length <= 0) {
@@ -103,24 +102,45 @@ class PageManager {
         }
         
         hoveringElems.sort((a, b) => {
-            const rectA = a.getBoundingClientRect();
-            const rectB = b.getBoundingClientRect();
-
-            const distanceA = Math.sqrt(
-                Math.pow(this.mousePosX - rectA.left, 2) +
-                Math.pow(this.mousePosY - rectA.top, 2)
-            );
-
-            const distanceB = Math.sqrt(
-                Math.pow(this.mousePosX - rectB.left, 2) +
-                Math.pow(this.mousePosY - rectB.top, 2)
-            );
-
-            return distanceA - distanceB;
+            this.comparePriceElemDifferenceInDistance(a, b,
+                this.mousePosX, this.mousePosY);
         });
 
-        for(let hoveringElemIndex = 0; hoveringElemIndex < hoveringElems.length; hoveringElemIndex++) {
-            let currElem = hoveringElems[hoveringElemIndex];
+        this.showFirstPriceElementInArrayThatIsVisible(hoveringElems);
+    }
+
+    getElementsThatContainPoint(elems, pointX, pointY) {
+        let elemsThatContainPoint = [];
+        elems.forEach((priceElement) => {
+            const rect = priceElement.getBoundingClientRect();
+            if (pointX >= rect.left && pointX <= rect.left + rect.width &&
+                pointY >= rect.top && pointY <= rect.top + rect.height) {
+                elemsThatContainPoint.push(priceElement);
+            }
+        });
+        return elemsThatContainPoint;
+    }
+
+    comparePriceElemDifferenceInDistance(a, b, pointX, pointY) {
+        const rectA = a.getBoundingClientRect();
+        const rectB = b.getBoundingClientRect();
+
+        const distanceA = Math.sqrt(
+            Math.pow(pointX - rectA.left, 2) +
+            Math.pow(pointY - rectA.top, 2)
+        );
+
+        const distanceB = Math.sqrt(
+            Math.pow(pointX - rectB.left, 2) +
+            Math.pow(pointY - rectB.top, 2)
+        );
+
+        return distanceA - distanceB;
+    }
+
+    showFirstPriceElementInArrayThatIsVisible(elems) {
+        for(let elemIndex = 0; elemIndex < elems.length; elemIndex++) {
+            let currElem = elems[elemIndex];
             if(currElem.isVisible()) {
                 this.priceFrame.displayPriceElementInfoOnPriceDiv(currElem);
                 if(!this.priceFrame.isPriceDivVisible()) {
