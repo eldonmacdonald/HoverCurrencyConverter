@@ -1,5 +1,7 @@
 class CurrencySymbolFinder {
 
+    static gracePeriodForMutations = 100;
+
     static tagsThatContainVisualText = [
         "tt",
         "i",
@@ -50,59 +52,63 @@ class CurrencySymbolFinder {
         "blockquote"
     ];
 
-    constructor(currencySymbol, currency) {
-        this.currency = currency;
+    constructor(currencySymbol) {
         this.currencySymbol = currencySymbol;
         this.currencyXpath = `//*[child::text()[contains(., '${currencySymbol}')] and not(ancestor::*[contains(@style, 'display:none') or contains(@style, 'visibility:hidden')])]`
-        this.currencyResults = new Observable(new Array());
+        this.symbolElemResults = new Observable(new Array());
+    }
 
-        let currencyNodeResults = document.evaluate(this.currencyXpath, document,
-            null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        for (let i = 0; i < currencyNodeResults.snapshotLength; i++) {
-
-            let dollarResult = currencyNodeResults.snapshotItem(i);
-
-            let currencyResultsNewValue = Array.from(
-                this.currencyResults.getValue()
-            ).push(dollarResult);
-            
-            this.currencyResults.setValue(currencyResultsNewValue);
-        }
-        
+    startLookingForSymbolElems() {
         this.timer = null;
         let observer = new MutationObserver(() => {
-            this.findCurrencyResultsInMutation();
+            this.findSymbolElemsAfterMutation();
         });
         observer.observe(document.body, {
             childList: true,
             subtree: true,
             characterData: true
         });
+
+        // Do a first pass of the page when the method is called
+        this.findSymbolElemsAfterMutation();
     }
 
-    findCurrencyResultsInMutation() {
+    findSymbolElemsAfterMutation() {
         if(this.timer) {
             clearTimeout(this.timer);
         }
         this.timer = setTimeout(() => {
-            let tmpCurrencyResults = [];
-
-            let currencyNodeResults = document.evaluate(this.currencyXpath, document,
-                null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-            for (let i = 0; i < currencyNodeResults.snapshotLength; i++) {
-                let dollarResult = currencyNodeResults.snapshotItem(i);
-                tmpCurrencyResults.push(dollarResult);
-            }
-            this.currencyResults.setValue(
-                CurrencySymbolFinder.filterCurrencyResults(tmpCurrencyResults)
-            );
-        }, 750);
+            this.updateSymbolElemResults();
+        }, CurrencySymbolFinder.gracePeriodForMutations);
     }
 
-    static filterCurrencyResults(currencyResults) {
-        return currencyResults.filter( (currencyResult) => {
-            return !/[{}]/.test(currencyResult.innerText) && this.tagsThatContainVisualText.includes
+    updateSymbolElemResults() {
+        let tmpSymbolElemResults = [];
+
+        let currencyNodeResults = document.evaluate(this.currencyXpath, document,
+            null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        for (let i = 0; i < currencyNodeResults.snapshotLength; i++) {
+            let dollarResult = currencyNodeResults.snapshotItem(i);
+            tmpSymbolElemResults.push(dollarResult);
+        }
+        this.symbolElemResults.setValue(
+            CurrencySymbolFinder.filterSymbolElemResults(tmpSymbolElemResults)
+        );
+    }
+
+    static filterSymbolElemResults(symbolElemResults) {
+        return symbolElemResults.filter( (currencyResult) => {
+
+            if(!(currencyResult instanceof Element)) {
+                throw new TypeError("at least one element in the " + 
+                    "symbolElemResults argument was not an HTML DOM element");
+            }
+
+            let symbolLikelyPartOfScript = /[{}]/.test(currencyResult.innerText);
+            let symbolInVisualTextTag = this.tagsThatContainVisualText.includes
                 (currencyResult.tagName.toLowerCase());
+
+            return !symbolLikelyPartOfScript && symbolInVisualTextTag;
         })
     }
 }

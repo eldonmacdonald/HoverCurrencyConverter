@@ -10,10 +10,16 @@ class PageManager {
         this.currencyContexts = [];
 
         this.priceFrame = new PriceFrame();
+    }
 
+    activatePageManager() {
         this.delegateCurrencySymbolHandlers(
             this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
         );
+
+        this.currencyContexts.forEach(currencyContext => {
+            currencyContext.activateCurrencyContext();
+        })
 
         document.addEventListener("mousemove", 
             this.manageMouseMove.bind(this), 

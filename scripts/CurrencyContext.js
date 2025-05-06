@@ -3,15 +3,16 @@ class CurrencyContext {
         this.priceElements = [];
         this.currencySymbol = currencySymbol;
 
-        this.currencySymbolFinder = new CurrencySymbolFinder(currencySymbol, currency);
+        this.currencySymbolFinder = new CurrencySymbolFinder(currencySymbol);
         this.currencyConverter = new CurrencyConverter(currency, convertToCurrency, exchangeRates, localeFormat);
         this.priceElementBuilder = new PriceElementBuilder(this.currencyConverter);
 
-        this.currencySymbolFinder.currencyResults.onChange((changedCurrencySymbolArray) => {
+        this.currencySymbolFinder.symbolElemResults
+            .onChange((changedCurrencySymbolArray) => {
 
             //Could implement this for better performance
 
-            /* let oldCurrencySymbolArray = this.currencySymbolFinder.currencyResults.getValue();
+            /* let oldCurrencySymbolArray = this.currencySymbolFinder.symbolElemResults.getValue();
 
             let newCurrencySymbolsInChangedArray = changedCurrencySymbolArray
                 .filter(elem => !oldCurrencySymbolArray.includes(elem));
@@ -26,6 +27,10 @@ class CurrencyContext {
             this.priceElements = newPriceElements;
             
         });
+    }
+
+    activateCurrencyContext() {
+        this.currencySymbolFinder.startLookingForSymbolElems();
     }
 
     clearPriceElements() {

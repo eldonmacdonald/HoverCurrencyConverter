@@ -26,6 +26,8 @@ class PriceElementBuilder {
         return this.priceRegex.test(elem.textContent);
     }
 
+    //FIX: RETURN NULL WHEN CANNOT CREATE PRICE ELEMENT
+
     buildPriceElementFromSingleElement(elem) {
         const elemText = elem.textContent.trim();
         const priceMatch = elemText.match(this.priceRegex);
