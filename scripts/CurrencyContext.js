@@ -10,18 +10,6 @@ class CurrencyContext {
         this.currencySymbolFinder.symbolElemResults
             .onChange((changedCurrencySymbolArray) => {
 
-            //Could implement this for better performance
-
-            /* let oldCurrencySymbolArray = this.currencySymbolFinder.symbolElemResults.getValue();
-
-            let newCurrencySymbolsInChangedArray = changedCurrencySymbolArray
-                .filter(elem => !oldCurrencySymbolArray.includes(elem));
-
-            let priceElementsForNewCurrencySymbolElems = this.priceElementBuilder
-                .buildPriceElementsFromCurrencySymbolElementArray(newCurrencySymbolsInChangedArray);
-
-            this.priceElements.concat(priceElementsForNewCurrencySymbolElems); */
-
             let newPriceElements = this.priceElementBuilder
                 .buildPriceElementsFromCurrencySymbolElementArray(changedCurrencySymbolArray);
             this.priceElements = newPriceElements;

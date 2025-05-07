@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceElementBuilder.js Testing Page</title>
+</head>
+<body>
+    <p class="starting-elem" id="single-element-price-with-decimal">$14.99</p>
+
+    <p class="starting-elem" id="single-element-price-no-decimal">$1400</p>
+    
+    <p class="starting-elem" id="single-element-no-decimal-comma">$1,400</p>
+    
+    <p class="starting-elem" id="single-element-with-decimal-noise">abra $14.99 $200.00</p>
+
+    <p class="starting-elem" id="single-element-no-decimal-noise">abra $1400 $200</p>
+
+    <span class="starting-elem" id="text-node-dollar-single-element-decimal">
+        $
+        <p>14</p>
+        <p>.99</p>
+    </span>
+
+    <div id="parent-element-all-same-level-decimal-separated">
+        <p class="starting-elem">$</p>
+        <p>14</p>
+        <p>.99</p>
+    </div>
+
+    <div id="parent-element-all-same-level-decimal-separated-commas">
+        <p class="starting-elem">$</p>
+        <p>14</p>
+        <p>,</p>
+        <p>000</p>
+        <p>.99</p>
+    </div>
+
+    <div id="parent-element-all-same-level-decimal-separated-commas-noise">
+        <p>This is a distraction!</p>
+        <p>This is also a distraction!</p>
+        <p class="starting-elem">$</p>
+        <p>14</p>
+        <p>,</p>
+        <p>000</p>
+        <p>.99</p>
+        <p>This is yet another distraction!</p>
+    </div>
+
+    <div id="parent-element-all-same-level-full-amount">
+        <p class="starting-elem">$</p>
+        <p>14.99</p>
+    </div>
+
+    <div id="parent-element-all-same-level-no-decimal">
+        <p class="starting-elem">$</p>
+        <p>1400</p>
+    </div>
+
+    <div id="parent-element-different-levels-decimal-separated">
+        <p class="starting-elem">$</p>
+        <span>
+            <p>14</p>
+            <p>.99</p>
+        </span>
+    </div>
+
+    <div id="parent-element-different-levels-full-amount">
+        <p class="starting-elem">$</p>
+        <span>
+            <p>14.99</p>
+        </span>
+    </div>
+
+    <div id="parent-element-different-levels-noise">
+        <p class="starting-elem">$</p>
+        <span>
+            14.99
+        </span>
+        <span>
+            abra 3456
+        </span>
+    </div>
+
+    <span id="no-price-matches">There are no price matches here!</span>
+
+    <span id="no-price-matches-parent">
+        <p class="starting-elem">$</p>
+    </span>
+
+</body>
+<script src="../../scripts/CurrencyConverter.js"></script>
+<script src="../../scripts/PriceElement.js"></script>
+<script src="../../scripts/PriceElementBuilder.js"></script>
+<script src="PriceElementBuilderTests.js"></script>
+</html>
