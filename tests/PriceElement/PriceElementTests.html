@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Element Tests</title>
+</head>
+<body>
+    <div id="parent-2-levels-hidden" style="visibility: hidden;">
+        <div>
+            <span class="elem">$0</span>
+        </div>
+    </div>
+
+    <div id="parent-2-levels-opacity-0" style="opacity: 0;">
+        <div>
+            <span class="elem">$0</span>
+        </div>
+    </div>
+
+    <div id="parent-2-levels-clip" style="clip: rect(0px, 0px, 0px, 0px);">
+        <div>
+            <span class="elem">$0</span>
+        </div>
+    </div>
+
+    <div id="visible">$0</div>
+</body>
+<script src="../../scripts/PriceElement.js"></script>
+<script src="PriceElementTests.js"></script>
+</html>
