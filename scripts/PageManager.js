@@ -8,11 +8,14 @@ class PageManager {
         this.localeFormat = localeFormat;
 
         this.currencyContexts = [];
-
-        this.priceFrame = new PriceFrame();
     }
 
-    activatePageManager() {
+    async activatePageManager() {
+        this.priceFrame = await PriceFrame.build(
+            chrome.runtime.getURL("resources/frame.html"),
+            "price-div"
+        );
+
         this.delegateCurrencySymbolHandlers(
             this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
         );

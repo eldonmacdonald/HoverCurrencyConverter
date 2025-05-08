@@ -1,75 +1,85 @@
 class PriceFrame {
 
-    constructor() {
-        this.frame = document.createElement("iframe");
+    static resizeGracePeriod = 300;
 
-        this.frame.style.position = "fixed";
-        this.frame.style.pointerEvents = "none";
+    constructor(frame, priceDiv) {
+        this.frame = frame;
+        this.priceDiv = priceDiv;
+    }
 
-        this.frame.style.width = window.innerWidth + "px";
-        this.frame.style.height = window.innerHeight + "px";
+    static async build(frameContentUrl, priceDivId) {
+        let frame = this.createFrame();
+        frame = await this.initializeFrame(frameContentUrl, frame);
+        let priceDiv = this.getPriceDiv(frame, priceDivId);
+        
+        return new PriceFrame(frame, priceDiv);
+    }
+
+    static createFrame() {
+        let frame = document.createElement("iframe");
+
+        frame.style.position = "fixed";
+        frame.style.pointerEvents = "none";
+
+        frame.style.width = window.innerWidth + "px";
+        frame.style.height = window.innerHeight + "px";
 
         window.addEventListener('resize', () => {
             if(this.resizeTimeout) {
                 clearTimeout(this.resizeTimeout);
             }
             this.resizeTimeout = setTimeout(() => {
-                this.frame.style.width = window.innerWidth + "px";
-                this.frame.style.height = window.innerHeight + "px";
-            }, 300);
+                frame.style.width = window.innerWidth + "px";
+                frame.style.height = window.innerHeight + "px";
+            }, PriceFrame.resizeGracePeriod);
         })
 
-        this.frame.style.top = "0px";
-        this.frame.style.left = "0px";
+        frame.style.top = "0px";
+        frame.style.left = "0px";
 
-        //this.frame.style.border = "none";
-        this.frame.style.zIndex = "9999";
+        //frame.style.border = "none";
+        frame.style.zIndex = "9999";
 
-        fetch(chrome.runtime.getURL("resources/frame.html"))
-        .then(response => response.text())
-        .then(html => {
-            this.frame.srcdoc = html;
-            document.body.appendChild(this.frame);
-            this.frame.onload = () => {
-                this.initializeFrameContent();
-                this.initialized = true;
-                console.log("Initialized!");
-            };
+        return frame;
+    }
+
+    static initializeFrame(frameContentUrl, frame) {
+        return new Promise((resolve, reject) => {
+            fetch(frameContentUrl)
+                .then(response => response.text())
+                .then(html => {
+                    frame.srcdoc = html;
+                    document.body.appendChild(frame);
+
+                    frame.onload = () => {
+                        resolve(frame); // Resolve the promise when initialized
+                    };
+                })
+                .catch(reject); // In case fetch fails
         });
     }
 
-    initializeFrameContent() {
-        let frameDocument = this.frame.contentDocument;
-        this.priceDiv = frameDocument.getElementById("price-div");
+    static getPriceDiv(frame, divId) {
+        return frame.contentDocument.getElementById(divId);
     }
 
     displayPriceElementInfoOnPriceDiv(priceElement) {
-        if(this.initialized) {
-            const priceElementRect = priceElement.getBoundingClientRect();
-            this.priceDiv.style.top = `${priceElementRect.top - this.priceDiv.offsetHeight}px`;
-            this.priceDiv.style.left = `${priceElementRect.left}px`
+        const priceElementRect = priceElement.getBoundingClientRect();
+        this.priceDiv.style.top = `${priceElementRect.top - this.priceDiv.offsetHeight}px`;
+        this.priceDiv.style.left = `${priceElementRect.left}px`
 
-            this.priceDiv.innerText = priceElement.displayPrice;
-        }
+        this.priceDiv.innerText = priceElement.displayPrice;
     }
 
     isPriceDivVisible() {
-        if(this.initialized) {
-            return this.priceDiv.style.visibility != "hidden";
-        } else {
-            return false;
-        }
+        return this.priceDiv.style.visibility != "hidden";
     }
 
     showPriceDiv() {
-        if(this.initialized) {
-            this.priceDiv.style.visibility = "visible";
-        }
+        this.priceDiv.style.visibility = "visible";
     }
 
     hidePriceDiv() {
-        if(this.initialized) {
-            this.priceDiv.style.visibility = "hidden";
-        }
+        this.priceDiv.style.visibility = "hidden";
     }
 }
