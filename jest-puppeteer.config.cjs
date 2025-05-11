@@ -1,3 +1,12 @@
-const extensionPath = require('path').join(__dirname);
+const path = require('path');
+const extensionPath = path.join(__dirname);
 
-module.exports = {}
+module.exports = {
+    launch: {
+        headless: false,
+        args: [
+        `--disable-extensions-except=${extensionPath}`,
+        `--load-extension=${extensionPath}`,
+        ],
+    }
+}

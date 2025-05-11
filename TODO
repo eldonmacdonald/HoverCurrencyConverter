@@ -1,0 +1,2 @@
+1. Make an extension of the CurrencySymbolFinder that takes a regex and that
+finds symbol elements in the textContent of the page instead of with xPath

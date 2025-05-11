@@ -19,6 +19,9 @@
             ]
         }
     ],
+    "background": {
+        "service_worker": "scripts/background.js"
+    },
     "permissions": [
         "activeTab",
         "scripting"
@@ -28,7 +31,9 @@
         "file:///*"
     ],
     "web_accessible_resources": [{
-        "resources": ["resources/frame.html"],
+        "resources": ["resources/frame.html", 
+            "tests/PriceFrame/ForInitializeFrameTest.html",
+            "tests/PriceFrame/ForGetPriceDivTest.html"],
         "matches": ["*://*/*", "file:///*"]
     }]
 }

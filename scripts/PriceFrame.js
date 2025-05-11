@@ -52,23 +52,38 @@ class PriceFrame {
                     document.body.appendChild(frame);
 
                     frame.onload = () => {
-                        resolve(frame); // Resolve the promise when initialized
+                        resolve(frame);
                     };
                 })
-                .catch(reject); // In case fetch fails
+                .catch(reason => {
+                    reject(new Error(`Fetching file at url ` +
+                        `'${frameContentUrl}' failed. Reason: ${reason}`));
+                });
         });
     }
 
     static getPriceDiv(frame, divId) {
-        return frame.contentDocument.getElementById(divId);
+        if(!frame.contentDocument) {
+            throw new Error(`given iframe does not have any content`);
+        }
+
+        const ret = frame.contentDocument.getElementById(divId)
+
+        if(ret) {
+            return ret;
+        } else {
+            throw new Error(`div id ${divId} did not match any elements ` +
+                `in the frame document`);
+        }
     }
 
     displayPriceElementInfoOnPriceDiv(priceElement) {
-        const priceElementRect = priceElement.getBoundingClientRect();
-        this.priceDiv.style.top = `${priceElementRect.top - this.priceDiv.offsetHeight}px`;
-        this.priceDiv.style.left = `${priceElementRect.left}px`
-
         this.priceDiv.innerText = priceElement.displayPrice;
+    }
+
+    movePriceDivToPoint(x, y) {
+        this.priceDiv.style.left = `${x}px`;
+        this.priceDiv.style.top = `${y}px`;
     }
 
     isPriceDivVisible() {

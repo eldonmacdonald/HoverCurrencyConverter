@@ -152,6 +152,8 @@ class PageManager {
             let currElem = elems[elemIndex];
             if(currElem.isVisible()) {
                 this.priceFrame.displayPriceElementInfoOnPriceDiv(currElem);
+                this.priceFrame.movePriceDivToPoint(this.mousePosX, this.mousePosY);
+
                 if(!this.priceFrame.isPriceDivVisible()) {
                     this.priceFrame.showPriceDiv();
                 }
