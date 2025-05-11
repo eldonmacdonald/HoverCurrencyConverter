@@ -121,9 +121,8 @@ class PageManager {
     getElementsThatContainPoint(elems, pointX, pointY) {
         let elemsThatContainPoint = [];
         elems.forEach((priceElement) => {
-            const rect = priceElement.getBoundingClientRect();
-            if (pointX >= rect.left && pointX <= rect.left + rect.width &&
-                pointY >= rect.top && pointY <= rect.top + rect.height) {
+            if (priceElement.isPointWithinElementBoundaries(pointX, 
+                pointY)) {
                 elemsThatContainPoint.push(priceElement);
             }
         });
@@ -131,18 +130,10 @@ class PageManager {
     }
 
     comparePriceElemDifferenceInDistance(a, b, pointX, pointY) {
-        const rectA = a.getBoundingClientRect();
-        const rectB = b.getBoundingClientRect();
 
-        const distanceA = Math.sqrt(
-            Math.pow(pointX - rectA.left, 2) +
-            Math.pow(pointY - rectA.top, 2)
-        );
+        const distanceA = a.getElementDistanceFromPoint(pointX, pointY);
 
-        const distanceB = Math.sqrt(
-            Math.pow(pointX - rectB.left, 2) +
-            Math.pow(pointY - rectB.top, 2)
-        );
+        const distanceB = b.getElementDistanceFromPoint(pointX, pointY);
 
         return distanceA - distanceB;
     }

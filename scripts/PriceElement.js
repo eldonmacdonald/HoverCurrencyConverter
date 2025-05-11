@@ -97,4 +97,21 @@ class PriceElement {
         }
         return false;
     }
+
+    /**
+     * Gives the distance from the top left corner of the element boundary to
+     * the point given
+     * 
+     * @param {number} pointX - the x position of the point in the client
+     * viewport
+     * @param {number} pointY - the y position of the point in the client
+     * viewport
+     */
+    getElementDistanceFromPoint(pointX, pointY) {
+        const rect = this.getBoundingClientRect();
+        return Math.sqrt(
+            Math.pow(pointX - rect.left, 2) +
+            Math.pow(pointY - rect.top, 2)
+        );
+    }
 }

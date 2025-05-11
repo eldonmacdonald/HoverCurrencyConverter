@@ -75,3 +75,21 @@ function isPointWithinElementBoundaries_pointIsNotWithinBoundariesTest() {
 
     return priceElement.isPointWithinElementBoundaries(1, 1);
 }
+
+// Should return 5
+function getElementDistanceFromPoint_elementDistance5SE() {
+
+    let elem = document.getElementById("contains-point-1-1");
+    let priceElement = new PriceElement("$0", elem);
+
+    return priceElement.getElementDistanceFromPoint(4, 3);
+}
+
+// Should return 5
+function getElementDistanceFromPoint_elementDistance5NW() {
+
+    let elem = document.getElementById("contains-point-1-1");
+    let priceElement = new PriceElement("$0", elem);
+
+    return priceElement.getElementDistanceFromPoint(-4, -3);
+}

@@ -63,11 +63,19 @@ describe('PriceElement.js', () => {
         expect(ret).toBeTruthy();
     })
 
-    it('isPointWithinElementBoundaries_pointIsNotWithinBoundariesTest', async () => {
+    it('getElementDistanceFromPoint_elementDistance5SE', async () => {
         const ret = await page.evaluate(() => {
-            return isPointWithinElementBoundaries_pointIsNotWithinBoundariesTest();
+            return getElementDistanceFromPoint_elementDistance5SE();
         })
 
-        expect(ret).toBeFalsy();
+        expect(ret).toEqual(5)
+    })
+
+    it('getElementDistanceFromPoint_elementDistance5NW', async () => {
+        const ret = await page.evaluate(() => {
+            return getElementDistanceFromPoint_elementDistance5NW();
+        })
+
+        expect(ret).toEqual(5)
     })
 })
