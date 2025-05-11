@@ -57,3 +57,21 @@ function getBoundingClientRect_getCorrectBoundingRect() {
 
     return [originalRect, returnedRect];
 }
+
+// Should return true
+function isPointWithinElementBoundaries_pointIsWithinBoundariesTest() {
+
+    let elem = document.getElementById("contains-point-1-1");
+    let priceElement = new PriceElement("$0", elem);
+
+    return priceElement.isPointWithinElementBoundaries(1, 1);
+}
+
+// Should return false
+function isPointWithinElementBoundaries_pointIsNotWithinBoundariesTest() {
+
+    let elem = document.getElementById("does-not-contain-point-1-1");
+    let priceElement = new PriceElement("$0", elem);
+
+    return priceElement.isPointWithinElementBoundaries(1, 1);
+}

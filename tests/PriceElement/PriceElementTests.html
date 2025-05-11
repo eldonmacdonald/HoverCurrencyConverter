@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Element Tests</title>
 </head>
+<style>
+    #contains-point-1-1 {
+        position:fixed;
+        top: 0px;
+        left: 0px;
+        height: 100px;
+        width: 100px;
+    }
+
+    #does-not-contain-point-1-1 {
+        position:fixed;
+        top: 10px;
+        left: 10px;
+        height: 100px;
+        width: 100px;
+    }
+</style>
 <body>
     <div id="parent-2-levels-hidden" style="visibility: hidden;">
         <div>
@@ -25,6 +42,10 @@
     </div>
 
     <div id="visible">$0</div>
+
+    <div id="contains-point-1-1">$0</div>
+
+    <div id="does-not-contain-point-1-1">$0</div>
 </body>
 <script src="../../scripts/PriceElement.js"></script>
 <script src="PriceElementTests.js"></script>

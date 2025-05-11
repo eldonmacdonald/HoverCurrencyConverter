@@ -79,4 +79,22 @@ class PriceElement {
 
         return true;
     }
+
+    /**
+     * Checks if the point is within the element's boundary, which in this case
+     * is the ClientRect of the bounding element
+     * 
+     * @param {number} pointX - the x position of the point in the client
+     * viewport
+     * @param {number} pointY - the y position of the point in the client
+     * viewport
+     */
+    isPointWithinElementBoundaries(pointX, pointY) {
+        const rect = this.getBoundingClientRect();
+        if (pointX >= rect.left && pointX <= rect.left + rect.width &&
+            pointY >= rect.top && pointY <= rect.top + rect.height) {
+            return true;
+        }
+        return false;
+    }
 }
