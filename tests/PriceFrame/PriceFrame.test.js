@@ -46,6 +46,7 @@ describe('PriceFrame.js', () => {
         expect(frameStyles[4]).toEqual("0px");
         expect(frameStyles[5]).toEqual("0px");
         expect(frameStyles[6]).toEqual("9999");
+        expect(frameStyles[7]).toEqual("light");
     });
 
     it('createFrame_changedDimensionsOnResizeTest', async () => {

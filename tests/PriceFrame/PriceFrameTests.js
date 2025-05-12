@@ -7,7 +7,7 @@ function createFrame_correctFrameCreatedTest() {
 
     return [frame.style.position, frame.style.pointerEvents, frame.style.width, 
         frame.style.height, frame.style.top, frame.style.left, 
-        frame.style.zIndex];
+        frame.style.zIndex, frame.style.colorScheme];
 }
 
 // RESIZE DEBUGGING CAN BE DONE THROUGH DEVTOOLS, AUTOMATED TESTS FOR RESIZING
