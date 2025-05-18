@@ -3,7 +3,7 @@ class CurrencyContext {
         this.priceElements = [];
         this.currencySymbol = currencySymbol;
 
-        this.currencySymbolFinder = new CurrencySymbolFinder(currencySymbol);
+        this.currencySymbolFinder = new CurrencySymbolFinder(new RegExp("\\" + currencySymbol), currencySymbol);
         this.currencyConverter = new CurrencyConverter(currency, convertToCurrency, exchangeRates, localeFormat);
         this.priceElementBuilder = new PriceElementBuilder(this.currencyConverter);
 

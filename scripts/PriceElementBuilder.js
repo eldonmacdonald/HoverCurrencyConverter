@@ -103,13 +103,15 @@ class PriceElementBuilder {
      * @throws {Error} If no price is found in the element text.
      */
     getPriceFromElementText(elem) {
+
         const elemText = elem.textContent.trim();
         const cleanElemText = elemText.replace(/\s+/g, '');
         const priceMatch = cleanElemText.match(this.priceRegex);
 
         if(!priceMatch || priceMatch.length <= 0) {
             throw new Error("Tried to find the price associated with the " +
-                "following element text, but found no price regex matches: " +
+                "following element text, but found less than " + matchNum +
+                " price regex matches: " +
                 elemText);
         }
 
@@ -189,5 +191,9 @@ class PriceElementBuilder {
         }
 
         throw new Error("child not found in parent element");
+    }
+
+    getHoverRange(elem) {
+        
     }
 }

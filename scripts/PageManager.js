@@ -8,6 +8,7 @@ class PageManager {
         this.localeFormat = localeFormat;
 
         this.currencyContexts = [];
+        this.regexPriceElementFinder = new RegexPriceElementFinder(/\$/g);
     }
 
     async activatePageManager() {
@@ -16,9 +17,7 @@ class PageManager {
             "price-div"
         );
 
-        this.delegateCurrencySymbolHandlers(
-            this.findCurrencySymbolsOnPage(PageManager.supportedCurrencySymbols)
-        );
+        this.createCurrencyContexts();
 
         this.currencyContexts.forEach(currencyContext => {
             currencyContext.activateCurrencyContext();
@@ -32,43 +31,37 @@ class PageManager {
         document.addEventListener('scroll',
             this.scrollEvent.bind(this)
         )
+
+        // Observe mutations to the page and update accordingly
+        let observer = new MutationObserver(() => {
+            if(this.timer) {
+                clearTimeout(this.timer);
+            }
+            this.timer = setTimeout(() => {
+               
+            }, 300);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        this.regexPriceElementFinder.getPriceElementsTextAndRange(document.body);
     }
 
-    static createXPathStringForSymbol(symbol) {
-        return `//*[child::text()[contains(., '${symbol}')] and not(ancestor::*[contains(@style, 'display:none') or contains(@style, 'visibility:hidden')])]`
+    onPageMutation() {
+        this.regexPriceElementFinder.getPriceElementsTextAndRange();
     }
 
     scrollEvent() {
         this.priceFrame.hidePriceDiv();
     }
 
-    findCurrencySymbolsOnPage(currencySymbolsToCheck) {
-        return currencySymbolsToCheck.filter ((symbol) => {
-            let path = PageManager.createXPathStringForSymbol(symbol);
-            let nodeResults = document.evaluate(path, document,
-                null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-
-            if(nodeResults.snapshotLength > 0) {
-                return true;
-            }
-            return false;
-        });
-    }
-
-    delegateCurrencySymbolHandlers(currencySymbolsToCheck) {
-        currencySymbolsToCheck.forEach((currencySymbol) => {
-            switch(currencySymbol) {
-                case "$": {
-                    this.createDollarContexts();
-                } break;
-                case "€": {
-                    this.createEuroContexts();
-                } break;
-                case "£": {
-                    this.createPoundContexts();
-                } break;
-            }
-        });
+    createCurrencyContexts() {
+        this.createDollarContexts();
+        this.createPoundContexts();
+        this.createEuroContexts();
     }
 
     createDollarContexts() {

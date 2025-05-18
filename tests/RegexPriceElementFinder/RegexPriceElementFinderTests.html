@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PriceElementBuilder.js Testing Page</title>
+    <title>RegexPriceElementFinder.js Testing Page</title>
 </head>
 <body>
     <p class="starting-elem" id="single-element-price-with-decimal">$14.99</p>
@@ -12,7 +12,9 @@
     
     <p class="starting-elem" id="single-element-no-decimal-comma">$1,400</p>
     
-    <p class="starting-elem" id="single-element-with-decimal-noise">abra $14.99 $200.00</p>
+    <p class="starting-elem" id="two-elements-with-decimal-noise">abra $14.99 $200.00a</p>
+
+    <p id="two-elements-same-price">$20.00$20.00a</p>
 
     <p class="starting-elem" id="single-element-no-decimal-noise">abra $1400 $200</p>
 
@@ -54,7 +56,7 @@
 
     <div id="parent-element-all-same-level-no-decimal">
         <p class="starting-elem">$</p>
-        <p>1400</p>
+        <p>1400a</p>
     </div>
 
     <div id="parent-element-different-levels-decimal-separated">
@@ -90,7 +92,6 @@
 
 </body>
 <script src="../../scripts/CurrencyConverter.js"></script>
-<script src="../../scripts/PriceElement.js"></script>
-<script src="../../scripts/PriceElementBuilder.js"></script>
-<script src="PriceElementBuilderTests.js"></script>
+<script src="../../scripts/RegexPriceElementFinder.js"></script>
+<script src="RegexPriceElementFinderTests.js"></script>
 </html>

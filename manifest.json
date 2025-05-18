@@ -8,6 +8,7 @@
             "matches": ["*://*/*", "file:///*"],
             "js": [
                 "scripts/Observable.js",
+                "scripts/RegexPriceElementFinder.js",
                 "scripts/CurrencyConverter.js",
                 "scripts/CurrencySymbolFinder.js",
                 "scripts/CurrencyContext.js",
