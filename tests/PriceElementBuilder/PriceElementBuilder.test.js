@@ -230,4 +230,12 @@ describe('PriceElementBuilder.js', () => {
 
         expect(ret).toMatch(/all elements in currencySymbolElementArray argument must be of class Element/);
     })
+
+    it('buildRangedPriceElement_builtFromCorrectPrice', async () => {
+        const ret = await page.evaluate(() => {
+            return buildRangedPriceElement_builtFromCorrectPrice();
+        })
+
+        expect(ret.displayPrice).toMatch(/£107.69/);
+    })
 })

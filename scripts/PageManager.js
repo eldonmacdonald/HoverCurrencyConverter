@@ -38,7 +38,7 @@ class PageManager {
                 clearTimeout(this.timer);
             }
             this.timer = setTimeout(() => {
-               
+               this.onPageMutation();
             }, 300);
         });
         observer.observe(document.body, {
@@ -46,12 +46,10 @@ class PageManager {
             subtree: true,
             characterData: true
         });
-
-        this.regexPriceElementFinder.getPriceElementsTextAndRange(document.body);
     }
 
     onPageMutation() {
-        this.regexPriceElementFinder.getPriceElementsTextAndRange();
+        this.regexPriceElementFinder.getPriceElementsTextAndRange(document.body);
     }
 
     scrollEvent() {

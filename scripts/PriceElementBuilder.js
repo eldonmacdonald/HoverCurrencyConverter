@@ -193,7 +193,24 @@ class PriceElementBuilder {
         throw new Error("child not found in parent element");
     }
 
-    getHoverRange(elem) {
+    buildRangedPriceElement(stringPrice, range) {
+        //remove any characters that could not be part of the price
+        const cleanPrice = stringPrice.replace(/[^\d\.]+/g, '');
+
+        let priceFloat
+        try{
+            priceFloat = parseFloat(cleanPrice);
+        } catch (e) {
+            throw new Error(`could not find price number in string ` +
+                `${stringPrice}`)
+        }
+
+        let convertedPrice = this.converter.getConvertedString(priceFloat);
         
+        return new RangedPriceElement(
+            convertedPrice,
+            range.commonAncestorContainer,
+            range
+        );
     }
 }

@@ -304,3 +304,17 @@ function buildPriceElementsFromCurrencySymbolElementArray_throwErrorOnInvalidArr
     return priceElementBuilder
         .buildPriceElementsFromCurrencySymbolElementArray(badArray);
 }
+
+function buildRangedPriceElement_builtFromCorrectPrice() {
+    let currencyConverter = new CurrencyConverter("INR", "GBP", t_rates_gbp, 
+        "en-IN");
+    let priceElementBuilder = new PriceElementBuilder(currencyConverter);
+
+    let parentContainer = document.querySelector("#parent-element-all-same-level-decimal-separated-commas");
+
+    let range = document.createRange()
+    range.setStart(parentContainer, 0);
+    range.setEnd(parentContainer, 0);
+
+    return priceElementBuilder.buildRangedPriceElement("$ \n14,\n000", range)
+}
