@@ -8,7 +8,6 @@ class PageManager {
         this.localeFormat = localeFormat;
 
         this.currencyContexts = [];
-        this.regexPriceElementFinder = new RegexPriceElementFinder(/\$/g);
     }
 
     async activatePageManager() {
@@ -18,10 +17,6 @@ class PageManager {
         );
 
         this.createCurrencyContexts();
-
-        this.currencyContexts.forEach(currencyContext => {
-            currencyContext.activateCurrencyContext();
-        })
 
         document.addEventListener("mousemove", 
             this.manageMouseMove.bind(this), 
@@ -49,7 +44,9 @@ class PageManager {
     }
 
     onPageMutation() {
-        this.regexPriceElementFinder.getPriceElementsTextAndRange(document.body);
+        this.currencyContexts.forEach(currencyContext => {
+            currencyContext.updatePriceElements();
+        })
     }
 
     scrollEvent() {
@@ -58,13 +55,17 @@ class PageManager {
 
     createCurrencyContexts() {
         this.createDollarContexts();
-        this.createPoundContexts();
-        this.createEuroContexts();
     }
 
     createDollarContexts() {
-        this.currencyContexts.push(new CurrencyContext("$", "CAD", 
-            this.convertToCurrency, this.exchangeRates, this.localeFormat));
+        let converter = new CurrencyConverter(
+            "CAD", 
+            "INR", 
+            this.exchangeRates,
+            "en-IN"
+        );
+
+        this.currencyContexts.push(new RegexPriceElementFinder(/\$/, converter))
     }
 
     createEuroContexts() {
@@ -133,12 +134,15 @@ class PageManager {
         for(let elemIndex = 0; elemIndex < elems.length; elemIndex++) {
             let currElem = elems[elemIndex];
             if(currElem.isVisible()) {
+                const elemRect = currElem.getBoundingClientRect();
+                const frameRect = this.priceFrame.priceDiv.getBoundingClientRect();
                 this.priceFrame.displayPriceElementInfoOnPriceDiv(currElem);
-                this.priceFrame.movePriceDivToPoint(this.mousePosX, this.mousePosY);
+                this.priceFrame.movePriceDivToPoint(elemRect.left, elemRect.top - frameRect.height);
 
                 if(!this.priceFrame.isPriceDivVisible()) {
                     this.priceFrame.showPriceDiv();
                 }
+                return;
             }
         }
     }

@@ -206,10 +206,15 @@ class PriceElementBuilder {
         }
 
         let convertedPrice = this.converter.getConvertedString(priceFloat);
+
+        let boundingElem = range.commonAncestorContainer;
+        while(boundingElem.nodeType != Node.ELEMENT_NODE) {
+            boundingElem = boundingElem.parentNode;
+        }
         
         return new RangedPriceElement(
             convertedPrice,
-            range.commonAncestorContainer,
+            boundingElem,
             range
         );
     }

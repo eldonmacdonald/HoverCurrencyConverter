@@ -29,11 +29,26 @@ class RegexPriceElementFinder {
         this.currencyRegex = currencyRegex;
         this.converter = converter;
 
+        this.priceElementBuilder = new PriceElementBuilder(converter);
+
         // Array to store price elements
         this.priceElements = [];
 
         // Regular expression to match numeric price patterns
-        this.priceRegex = /\s*([\d,]+\s*[\d,]*)+(\.[\d]+)?\s*/;
+        this.priceRegex = /\s*[\d,]+(\.[\d]+)?/;
+    }
+
+    updatePriceElements() {
+        this.priceElements = []
+        let textsAndRanges = this.getPriceElementsTextAndRange(document.body);
+
+        textsAndRanges.forEach(textAndRange => {
+            let newElem = this.priceElementBuilder.buildRangedPriceElement(
+                textAndRange.text,
+                textAndRange.range
+            );
+            this.priceElements.push(newElem);
+        })
     }
 
     /**
@@ -59,14 +74,18 @@ class RegexPriceElementFinder {
 
         // Add a termination character to ensure greedy matching
         let terminatedFullPriceRegex = new RegExp(fullPriceRegex.source + 
-            "(?=[^\\.\\d\\,\\s])", 'g');
+            "[\\s\\.\\,\\d]*(?=[^\\.\\d\\,\\s])", 'g');
 
         let node;
         let nodesToConcat = [];
+        let nextStartOffset = 0;
         while ((node = treeWalker.nextNode())) {
 
-            // Skip nodes with excessively long text content
-            if (node.textContent.length > 1000) {
+            // Skip nodes with excessively long text content or that only
+            // contain whitespace
+            if (node.textContent.length > 1000 ||
+                node.textContent.replace(/\s+/g, '') == ''
+            ) {
                 continue;
             }
 
@@ -76,7 +95,7 @@ class RegexPriceElementFinder {
                 node => concatText += node.textContent
             );
 
-            terminatedFullPriceRegex.lastIndex = 0;
+            terminatedFullPriceRegex.lastIndex = nextStartOffset;
             let match;
             let endIndex = 0;
             while ((match = terminatedFullPriceRegex.exec(concatText))) {
@@ -105,8 +124,17 @@ class RegexPriceElementFinder {
             }
 
             // Remove processed nodes from the concatenation buffer
+            nextStartOffset = 0;
             concatText = "";
             while (concatText.length < endIndex) {
+                // Don't remove next node if it contains the end index
+                if(nodesToConcat.length > 0) {
+                    let nextNodeLength = nodesToConcat[0].textContent.length
+                    if(concatText.length + nextNodeLength > endIndex) {
+                        nextStartOffset = concatText.length;
+                        break;
+                    }
+                }
                 concatText += nodesToConcat.shift().textContent;
             }
 
@@ -194,28 +222,87 @@ class RegexPriceElementFinder {
         }
 
         // Get nodes containing the regex match
-        let tmpNodeArray = this.getNodesWithTextInRange(matchInText.index, 
+        const reducedNodeArray = this.getNodesWithTextInRange(matchInText.index, 
             matchInText.index + matchInText[0].length, nodeArray);
+        let reducedNodeArrayText = ""
+        reducedNodeArray.forEach(node => reducedNodeArrayText += node.textContent);
+
+        // Get the index of the element containing the regex in the full
+        // text
+        const reducedNodeArrayIndexInOriginal = 
+            this.getStartOfNodeArrayTextInOtherNodeArrayText(nodeArray, 
+                reducedNodeArray, startIndex, endIndex);
+        const matchIndexInReducedNodeArray = 
+            matchInText.index - reducedNodeArrayIndexInOriginal;
+        if(matchIndexInReducedNodeArray < 0) {
+            throw new Error("Match index is not within reduced node array")
+        }
 
         let range = document.createRange();
 
-        const startNode = tmpNodeArray[0];
-        const endNode = tmpNodeArray[tmpNodeArray.length - 1];
+        const startNode = reducedNodeArray[0];
+        const endNode = reducedNodeArray[reducedNodeArray.length - 1];
+        
+        let startOffset = matchIndexInReducedNodeArray;
 
-        let tmpNodeArrayText = "";
-        tmpNodeArray.forEach(node => tmpNodeArrayText += node.textContent);
-
-        tmpRegex.lastIndex = 0;
-        let regexMatches = tmpRegex.exec(tmpNodeArrayText);
-        let startOffset = regexMatches.index;
-
-        let endOffsetDistanceFromEnd = tmpNodeArrayText.length - 
-            (regexMatches.index + regexMatches[0].length);
+        let endOffsetDistanceFromEnd = reducedNodeArrayText.length - 
+            (matchIndexInReducedNodeArray + matchInText[0].length);
         let endOffset = endNode.textContent.length - endOffsetDistanceFromEnd;
 
         range.setStart(startNode, startOffset);
         range.setEnd(endNode, endOffset);
 
         return range;
+    }
+
+    getStartOfNodeArrayTextInOtherNodeArrayText(outerArr, innerArr, startIndex, endIndex) {
+        // Get text content of outer array
+        let outerArrText = ""
+        outerArr.forEach(node => outerArrText += node.textContent);
+
+        // get text content of inner array and create a regex from it
+        let innerArrText = "";
+        innerArr.forEach(node => innerArrText += node.textContent);
+        let innerArrTextRegex = new RegExp(this.stringToRegex(innerArrText), 'g');
+
+        // Get the text match of the inner array text in the outer array text,
+        // ensuring that that match is within the range specified by
+        // startIndex and endIndex
+        let innerArrTextMatchInOuterArrText = null
+        let indexOfInnerArrTextMatchInOuterArrText = 0
+        let endIndexOfInnerArrTextMatchInOuterArrText = 0
+        do {
+            innerArrTextMatchInOuterArrText = 
+                innerArrTextRegex.exec(outerArrText);
+            indexOfInnerArrTextMatchInOuterArrText = 
+                innerArrTextMatchInOuterArrText.index;
+            endIndexOfInnerArrTextMatchInOuterArrText = 
+                indexOfInnerArrTextMatchInOuterArrText + 
+                innerArrTextMatchInOuterArrText[0].length;
+        } while (
+            !this.isRangeInOtherRange(
+                startIndex, 
+                endIndex,
+                indexOfInnerArrTextMatchInOuterArrText,
+                endIndexOfInnerArrTextMatchInOuterArrText
+            )
+        )
+        return indexOfInnerArrTextMatchInOuterArrText;
+    }
+
+    isRangeInOtherRange(outerRangeStart, outerRangeEnd, 
+        innerRangeStart, innerRangeEnd) {
+        
+        let withinRange = false;
+        if(innerRangeStart < outerRangeEnd) {
+            if(innerRangeEnd > outerRangeStart) {
+                withinRange = true;
+            }
+        }
+        return withinRange;
+    }
+
+    stringToRegex(string) {
+        return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
     }
 }

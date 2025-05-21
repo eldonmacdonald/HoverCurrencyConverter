@@ -8,14 +8,15 @@
             "matches": ["*://*/*", "file:///*"],
             "js": [
                 "scripts/Observable.js",
-                "scripts/RegexPriceElementFinder.js",
+                "scripts/PriceElement.js",
+                "scripts/RangedPriceElement.js",
                 "scripts/CurrencyConverter.js",
+                "scripts/PriceElementBuilder.js",
+                "scripts/RegexPriceElementFinder.js",
                 "scripts/CurrencySymbolFinder.js",
                 "scripts/CurrencyContext.js",
                 "scripts/PriceFrame.js",
                 "scripts/PageManager.js",
-                "scripts/PriceElement.js",
-                "scripts/PriceElementBuilder.js",
                 "main.js"
             ]
         }
