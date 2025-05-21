@@ -7,4 +7,8 @@ class ExtendedPriceElement extends RangedPriceElement {
         this.displayCurrency = displayCurrency;
         this.originalCurrency = originalCurrency;
     }
+
+    isConversionNecessary() {
+        return this.displayCurrency != this.originalCurrency;
+    }
 }

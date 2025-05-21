@@ -58,27 +58,131 @@ class PageManager {
 
     createCurrencyContexts() {
         this.createDollarContexts();
+        this.createEuroContexts();
+        this.createPoundContexts();
     }
 
     createDollarContexts() {
-        let converter = new CurrencyConverter(
-            "CAD", 
-            "INR", 
+        let USDConverter = new CurrencyConverter(
+            "USD",
+            this.convertToCurrency,
             this.exchangeRates,
-            "en-IN"
-        );
+            this.localeFormat
+        )
+        const USDPrefixes = [
+            "US\\s*\\$",
+            "USD\\s*\\$",
+            "US\\s*",
+            "USD\\s*",
+            "$\\s*US",
+            "$\\s*USD"
+        ]
+        const USDPrefixRegex = new RegExp(`(${USDPrefixes.join("|")})`, "g");
+        let USDRegexPriceElementFinder = 
+            new RegexPriceElementFinder(USDPrefixRegex, USDConverter);
+        this.currencyContexts.push(USDRegexPriceElementFinder);
 
-        this.currencyContexts.push(new RegexPriceElementFinder(/\$/, converter))
+        let CADConverter = new CurrencyConverter(
+            "CAD",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        const CADPrefixes = [
+            "C\\s*\\$",
+            "CA\\s*\\$",
+            "$\\s*C",
+            "$\\s*CA"
+        ]
+        const CADPrefixRegex = new RegExp(`(${CADPrefixes.join("|")})`, "g");
+        let CADRegexPriceElementFinder = 
+            new RegexPriceElementFinder(CADPrefixRegex, CADConverter);
+        this.currencyContexts.push(CADRegexPriceElementFinder);
+
+        let NZDConverter = new CurrencyConverter(
+            "NZD",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        const NZDPrefixes = [
+            "NZD\\s*\\$",
+            "$\\s*NZD"
+        ]
+        const NZDPrefixRegex = new RegExp(`(${NZDPrefixes.join("|")})`, "g");
+        let NZDRegexPriceElementFinder = 
+            new RegexPriceElementFinder(NZDPrefixRegex, NZDConverter);
+        this.currencyContexts.push(NZDRegexPriceElementFinder);
+
+        let AUDConverter = new CurrencyConverter(
+            "AUD",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        const AUDPrefixes = [
+            "A\\s*\\$",
+            "AU\\s*\\$",
+            "AUD\\s*\\$",
+            "$\\s*A",
+            "$\\s*AU",
+            "$\\s*AUD"
+        ]
+        const AUDPrefixRegex = new RegExp(`(${AUDPrefixes.join("|")})`, "g");
+        let AUDRegexPriceElementFinder = 
+            new RegexPriceElementFinder(AUDPrefixRegex, AUDConverter);
+        this.currencyContexts.push(AUDRegexPriceElementFinder);
+
+        const href = window.location.href.toLowerCase();
+        let defaultToConvertFrom = "USD"
+        if(href.includes(".ca") || href.includes("en-ca") 
+            || href.includes("en_ca") || href.includes("/ca/")) {
+
+            defaultToConvertFrom = "CAD"
+        } else if(href.includes(".nz") || href.includes("en-nz") 
+            || href.includes("en_nz") || href.includes("/nz/")) {
+            
+            defaultToConvertFrom = "NZD";
+        } else if(href.includes(".au") || href.includes("en-au") 
+            || href.includes("en_au") || href.includes("/au/")) {
+            
+            defaultToConvertFrom = "AUD";
+        }
+        
+        const allPrefixes = USDPrefixes
+            .concat(CADPrefixes)
+            .concat(NZDPrefixes)
+            .concat(AUDPrefixes);
+        const noPrefixRegex = new RegExp(`(?<!${allPrefixes.join("|")})\\$`);
+        let genericConverter = new CurrencyConverter(
+            defaultToConvertFrom, 
+            this.convertToCurrency, 
+            this.exchangeRates,
+            this.localeFormat
+        );
+        this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, genericConverter))
     }
 
     createEuroContexts() {
-        this.currencyContexts.push(new CurrencyContext("€", "EUR", 
-            this.convertToCurrency, this.exchangeRates, this.localeFormat));
+        let converter = new CurrencyConverter(
+            "EUR",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        let regexPriceElementFinder = new RegexPriceElementFinder(/€/g, converter);
+        this.currencyContexts.push(regexPriceElementFinder);
     }
 
     createPoundContexts() {
-        this.currencyContexts.push(new CurrencyContext("£", "GBP", 
-            this.convertToCurrency, this.exchangeRates, this.localeFormat));
+        let converter = new CurrencyConverter(
+            "GBP",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        let regexPriceElementFinder = new RegexPriceElementFinder(/£/g, converter);
+        this.currencyContexts.push(regexPriceElementFinder);
     }
 
     manageMouseMove(event) {
@@ -137,6 +241,14 @@ class PageManager {
         for(let elemIndex = 0; elemIndex < elems.length; elemIndex++) {
             let currElem = elems[elemIndex];
             if(currElem.isVisible()) {
+
+                // Only show the price div when a conversion is necessary
+                if(currElem instanceof ExtendedPriceElement) {
+                    if(!currElem.isConversionNecessary()) {
+                        continue;
+                    }
+                }
+
                 const elemRect = currElem.getBoundingClientRect();
                 const frameRect = this.priceFrame.priceDiv.getBoundingClientRect();
                 this.priceFrame.displayPriceElementInfoOnPriceDiv(currElem);
@@ -148,5 +260,7 @@ class PageManager {
                 return;
             }
         }
+
+        this.priceFrame.hidePriceDiv();
     }
 }

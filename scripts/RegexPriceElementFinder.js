@@ -35,7 +35,7 @@ class RegexPriceElementFinder {
         this.priceElements = [];
 
         // Regular expression to match numeric price patterns
-        this.priceRegex = /\s*[\d,]+(\.[\d]+)?/;
+        this.priceRegex = /\s*[\d,]+(\.[\d]{2})?/;
     }
 
     updatePriceElements() {

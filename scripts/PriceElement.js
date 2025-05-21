@@ -69,7 +69,7 @@ class PriceElement {
             }
 
             // Check if the element or any ancestor has invisible clip-path
-            if (computedStyle.clipPath === "inset(50%)") {
+            if (computedStyle.clipPath == "inset(50%)") {
                 return false;
             }
 

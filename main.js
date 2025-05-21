@@ -8,8 +8,8 @@ let disabledUrlRegexs = [
 
 async function initExtension() {
     let pageManager = new PageManager(
-        await CurrencyConverter.getExchangeRates("INR"), 
-        "INR", "en-IN");
+        await CurrencyConverter.getExchangeRates("EUR"), 
+        "EUR", "en-EU");
     pageManager.activatePageManager();
 }
 
