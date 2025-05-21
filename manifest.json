@@ -10,12 +10,14 @@
                 "scripts/Observable.js",
                 "scripts/PriceElement.js",
                 "scripts/RangedPriceElement.js",
+                "scripts/ExtendedPriceElement.js",
                 "scripts/CurrencyConverter.js",
                 "scripts/PriceElementBuilder.js",
                 "scripts/RegexPriceElementFinder.js",
                 "scripts/CurrencySymbolFinder.js",
                 "scripts/CurrencyContext.js",
                 "scripts/PriceFrame.js",
+                "scripts/ExtendedPriceFrame.js",
                 "scripts/PageManager.js",
                 "main.js"
             ]
@@ -33,7 +35,7 @@
         "file:///*"
     ],
     "web_accessible_resources": [{
-        "resources": ["resources/frame.html", 
+        "resources": ["resources/frame.html", "resources/frame-extended.html",
             "tests/PriceFrame/ForInitializeFrameTest.html",
             "tests/PriceFrame/ForGetPriceDivTest.html"],
         "matches": ["*://*/*", "file:///*"]

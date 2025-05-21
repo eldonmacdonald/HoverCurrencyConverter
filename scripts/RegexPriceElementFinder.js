@@ -43,7 +43,7 @@ class RegexPriceElementFinder {
         let textsAndRanges = this.getPriceElementsTextAndRange(document.body);
 
         textsAndRanges.forEach(textAndRange => {
-            let newElem = this.priceElementBuilder.buildRangedPriceElement(
+            let newElem = this.priceElementBuilder.buildExtendedPriceElement(
                 textAndRange.text,
                 textAndRange.range
             );

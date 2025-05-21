@@ -68,6 +68,12 @@ class PriceElement {
                 return false;
             }
 
+            // Check if the element or any ancestor has invisible clip-path
+            if (computedStyle.clipPath === "inset(50%)") {
+                return false;
+            }
+
+
             // Check if the element or any ancestor has zero opacity
             const opacity = parseFloat(computedStyle.opacity);
             if (opacity === 0) {

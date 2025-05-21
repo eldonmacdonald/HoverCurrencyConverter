@@ -11,9 +11,12 @@ class PageManager {
     }
 
     async activatePageManager() {
-        this.priceFrame = await PriceFrame.build(
-            chrome.runtime.getURL("resources/frame.html"),
-            "price-div"
+        this.priceFrame = await ExtendedPriceFrame.build(
+            chrome.runtime.getURL("resources/frame-extended.html"),
+            "price-div",
+            "conversion-confirmation",
+            "original-price",
+            "new-price-elem"
         );
 
         this.createCurrencyContexts();

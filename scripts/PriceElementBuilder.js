@@ -218,4 +218,32 @@ class PriceElementBuilder {
             range
         );
     }
+
+    buildExtendedPriceElement(stringPrice, range) {
+        const cleanPrice = stringPrice.replace(/[^\d\.]+/g, '');
+
+        let priceFloat
+        try{
+            priceFloat = parseFloat(cleanPrice);
+        } catch (e) {
+            throw new Error(`could not find price number in string ` +
+                `${stringPrice}`)
+        }
+
+        let convertedPrice = this.converter.getConvertedString(priceFloat);
+
+        let boundingElem = range.commonAncestorContainer;
+        while(boundingElem.nodeType != Node.ELEMENT_NODE) {
+            boundingElem = boundingElem.parentNode;
+        }
+        
+        return new ExtendedPriceElement(
+            convertedPrice,
+            cleanPrice,
+            this.converter.convertToCurrency,
+            this.converter.currency,
+            boundingElem,
+            range
+        );
+    }
 }
