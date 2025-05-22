@@ -7,6 +7,7 @@
  * 
  * Used to determine if a conversion is necessary and to provide both original
  * and converted price data for UI display.
+ * @author Eldon MacDonald
  */
 class ExtendedPriceElement extends RangedPriceElement {
     /**
