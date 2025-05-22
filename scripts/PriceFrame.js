@@ -55,6 +55,7 @@ class PriceFrame {
         frame.style.left = "0px";
         frame.style.colorScheme = "light";
         frame.style.zIndex = "9999";
+        frame.style.border = "none";
 
         // Adjust iframe size on window resize
         window.addEventListener('resize', () => {

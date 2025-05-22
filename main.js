@@ -7,9 +7,29 @@ let disabledUrlRegexs = [
 ]
 
 async function initExtension() {
+    let convertToCurrency = await chrome.storage.local.get("hoverconverter_selectedCurrency");
+    convertToCurrency = convertToCurrency.hoverconverter_selectedCurrency;
+
+    let convertFromCurrency = await chrome.storage.local.get("hoverconverter_convertFrom");
+    convertFromCurrency = convertFromCurrency.hoverconverter_convertFrom;
+
+    if(!convertToCurrency) {
+        convertToCurrency = "USD";
+    }
+
+    if(!convertFromCurrency) {
+        convertFromCurrency = "AUTODETECT";
+    }
+
+    let locale = "en-US";
+    if(convertToCurrency == "INR") {
+        locale = "en-IN";
+    }
+
+
     let pageManager = new PageManager(
-        await CurrencyConverter.getExchangeRates("EUR"), 
-        "EUR", "en-EU");
+        await CurrencyConverter.getExchangeRates(convertToCurrency), 
+        convertToCurrency, locale, convertFromCurrency);
     pageManager.activatePageManager();
 }
 

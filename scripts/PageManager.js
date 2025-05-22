@@ -1,15 +1,46 @@
+/**
+ * Manages currency conversion and price display interactions on a web page.
+ * 
+ * The PageManager is responsible for:
+ * - Initializing and managing currency conversion contexts for different currencies.
+ * - Handling mouse and scroll events to display converted prices in a floating frame.
+ * - Observing DOM mutations to update price elements dynamically.
+ * 
+ * Usage:
+ * 1. Instantiate with exchange rates, target currency, locale format, and source currency.
+ * 2. Call `activatePageManager()` to initialize event listeners and mutation observers.
+ */
 class PageManager {
 
-    static supportedCurrencySymbols = ["$", "€", "£"];
-
-    constructor(exchangeRates, convertToCurrency, localeFormat) {
+    /**
+     * Constructs a PageManager instance.
+     * 
+     * @param {Object} exchangeRates - Exchange rates for currency conversion.
+     * @param {string} convertToCurrency - The currency code to convert prices to.
+     * @param {string} localeFormat - The locale format for displaying prices.
+     * @param {string} convertFrom - The source currency code, or "AUTODETECT" to infer from context.
+     */
+    constructor(exchangeRates, convertToCurrency, localeFormat, convertFrom) {
         this.exchangeRates = exchangeRates;
         this.convertToCurrency = convertToCurrency;
         this.localeFormat = localeFormat;
+        this.convertFrom = convertFrom;
 
+        /**
+         * Array of currency context objects (RegexPriceElementFinder instances).
+         * Each context is responsible for finding and converting prices for a specific currency.
+         * @type {Array}
+         */
         this.currencyContexts = [];
     }
 
+    /**
+     * Initializes the PageManager:
+     * - Builds the floating price frame.
+     * - Sets up currency contexts for price detection and conversion.
+     * - Adds event listeners for mouse movement and scroll.
+     * - Observes DOM mutations to update price elements dynamically.
+     */
     async activatePageManager() {
         this.priceFrame = await ExtendedPriceFrame.build(
             chrome.runtime.getURL("resources/frame-extended.html"),
@@ -46,22 +77,51 @@ class PageManager {
         });
     }
 
+    /**
+     * Called when the DOM is mutated.
+     * Updates all currency contexts to refresh their price elements.
+     */
     onPageMutation() {
         this.currencyContexts.forEach(currencyContext => {
             currencyContext.updatePriceElements();
         })
     }
 
+    /**
+     * Handles scroll events by hiding the floating price frame.
+     */
     scrollEvent() {
         this.priceFrame.hidePriceDiv();
     }
 
+    /**
+     * Creates currency contexts for price detection and conversion.
+     * If a specific source currency is provided, only that context is created.
+     * Otherwise, contexts for USD, CAD, NZD, AUD, EUR, GBP, and INR are created.
+     */
     createCurrencyContexts() {
+        if(this.convertFrom != "AUTODETECT") {
+            let converter = new CurrencyConverter(
+                this.convertFrom,
+                this.convertToCurrency,
+                this.exchangeRates,
+                this.localeFormat
+            );
+            let regexPriceElementFinder = new RegexPriceElementFinder(/(\$|€|£|₹)/g, converter);
+            this.currencyContexts.push(regexPriceElementFinder);
+            return;
+        }
+
         this.createDollarContexts();
         this.createEuroContexts();
         this.createPoundContexts();
+        this.createRupeeContexts();
     }
 
+    /**
+     * Creates contexts for dollar-based currencies (USD, CAD, NZD, AUD).
+     * Also determines the default currency to use for generic dollar signs based on the page URL.
+     */
     createDollarContexts() {
         let USDConverter = new CurrencyConverter(
             "USD",
@@ -163,6 +223,9 @@ class PageManager {
         this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, genericConverter))
     }
 
+    /**
+     * Creates a context for detecting and converting Euro (€) prices.
+     */
     createEuroContexts() {
         let converter = new CurrencyConverter(
             "EUR",
@@ -174,6 +237,9 @@ class PageManager {
         this.currencyContexts.push(regexPriceElementFinder);
     }
 
+    /**
+     * Creates a context for detecting and converting Pound (£) prices.
+     */
     createPoundContexts() {
         let converter = new CurrencyConverter(
             "GBP",
@@ -185,12 +251,37 @@ class PageManager {
         this.currencyContexts.push(regexPriceElementFinder);
     }
 
+    /**
+     * Creates a context for detecting and converting Rupee (₹) prices.
+     */
+    createRupeeContexts() {
+        let converter = new CurrencyConverter(
+            "INR",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        let regexPriceElementFinder = new RegexPriceElementFinder(/₹/g, converter);
+        this.currencyContexts.push(regexPriceElementFinder);
+    }
+
+    /**
+     * Handles mouse movement events.
+     * Tracks the mouse position and checks if it is hovering over a price element.
+     * 
+     * @param {MouseEvent} event - The mousemove event.
+     */
     manageMouseMove(event) {
         this.mousePosX = event.clientX;
         this.mousePosY = event.clientY;
         this.checkHovering();
     }
 
+    /**
+     * Checks if the mouse is hovering over any price elements.
+     * If so, displays the floating price frame with conversion info.
+     * Otherwise, hides the frame.
+     */
     checkHovering() {
 
         let hoveringElems = [];
@@ -217,6 +308,14 @@ class PageManager {
         this.showFirstPriceElementInArrayThatIsVisible(hoveringElems);
     }
 
+    /**
+     * Returns an array of elements from the given list that contain the specified point.
+     * 
+     * @param {Array} elems - Array of price element objects.
+     * @param {number} pointX - X coordinate.
+     * @param {number} pointY - Y coordinate.
+     * @returns {Array} Elements containing the point.
+     */
     getElementsThatContainPoint(elems, pointX, pointY) {
         let elemsThatContainPoint = [];
         elems.forEach((priceElement) => {
@@ -228,6 +327,15 @@ class PageManager {
         return elemsThatContainPoint;
     }
 
+    /**
+     * Compares two price elements by their distance from a given point.
+     * 
+     * @param {Object} a - First price element.
+     * @param {Object} b - Second price element.
+     * @param {number} pointX - X coordinate.
+     * @param {number} pointY - Y coordinate.
+     * @returns {number} Negative if a is closer, positive if b is closer.
+     */
     comparePriceElemDifferenceInDistance(a, b, pointX, pointY) {
 
         const distanceA = a.getElementDistanceFromPoint(pointX, pointY);
@@ -237,6 +345,12 @@ class PageManager {
         return distanceA - distanceB;
     }
 
+    /**
+     * Displays the floating price frame for the first visible price element in the array.
+     * If no visible element is found, hides the frame.
+     * 
+     * @param {Array} elems - Array of price element objects.
+     */
     showFirstPriceElementInArrayThatIsVisible(elems) {
         for(let elemIndex = 0; elemIndex < elems.length; elemIndex++) {
             let currElem = elems[elemIndex];

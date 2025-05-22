@@ -1,8 +1,15 @@
 {
     "manifest_version": 3,
-    "name": "INR Hover",
+    "name": "Hover Currency Converter",
     "version": "1.0",
     "description": "Converts price to INR on hover",
+    "action": {
+        "default_popup": "resources/popup.html"
+    },
+    "icons": {
+        "128": "resources/icon-128.png",
+        "48": "resources/icon-48.png"
+    },
     "content_scripts": [
         {
             "matches": ["*://*/*", "file:///*"],
@@ -28,7 +35,8 @@
     },
     "permissions": [
         "activeTab",
-        "scripting"
+        "scripting",
+        "storage"
     ],
     "host_permissions": [
         "*://*/*",
