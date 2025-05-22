@@ -5,10 +5,13 @@
  * - Initializing and managing currency conversion contexts for different currencies.
  * - Handling mouse and scroll events to display converted prices in a floating frame.
  * - Observing DOM mutations to update price elements dynamically.
+ * - Creating and managing the floating price frame that displays conversion information.
+ * - Anything else related to the page that the user is interacting with.
  * 
  * Usage:
  * 1. Instantiate with exchange rates, target currency, locale format, and source currency.
  * 2. Call `activatePageManager()` to initialize event listeners and mutation observers.
+ * @author Eldon MacDonald
  */
 class PageManager {
 

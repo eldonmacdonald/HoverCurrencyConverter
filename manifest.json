@@ -14,15 +14,12 @@
         {
             "matches": ["*://*/*", "file:///*"],
             "js": [
-                "scripts/Observable.js",
                 "scripts/PriceElement.js",
                 "scripts/RangedPriceElement.js",
                 "scripts/ExtendedPriceElement.js",
                 "scripts/CurrencyConverter.js",
                 "scripts/PriceElementBuilder.js",
                 "scripts/RegexPriceElementFinder.js",
-                "scripts/CurrencySymbolFinder.js",
-                "scripts/CurrencyContext.js",
                 "scripts/PriceFrame.js",
                 "scripts/ExtendedPriceFrame.js",
                 "scripts/PageManager.js",
