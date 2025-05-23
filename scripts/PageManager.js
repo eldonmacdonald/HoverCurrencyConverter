@@ -82,6 +82,7 @@ class PageManager {
             subtree: true,
             characterData: true
         });
+        this.onPageMutation();
     }
 
     /**
