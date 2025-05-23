@@ -12,6 +12,9 @@
  * - `getNodesWithTextInRange`: Retrieves nodes containing text within a specified range.
  * - `getRegexRangeInNodeArray`: Finds the range of a regex match within a node array.
  * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class RegexPriceElementFinder {

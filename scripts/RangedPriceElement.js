@@ -6,6 +6,10 @@
  * 
  * Provides a method to get the bounding rectangle of the price, using the range
  * if possible, or falling back to the bounding element.
+ * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class RangedPriceElement extends PriceElement {

@@ -11,6 +11,10 @@
  * Usage:
  * 1. Instantiate with exchange rates, target currency, locale format, and source currency.
  * 2. Call `activatePageManager()` to initialize event listeners and mutation observers.
+ * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class PageManager {

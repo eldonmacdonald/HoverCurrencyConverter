@@ -8,6 +8,9 @@
  * 2. Use `getBoundingClientRect` to retrieve the element's position and size.
  * 3. Use `isVisible` to check if the element is visible in the viewport.
  * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class PriceElement {

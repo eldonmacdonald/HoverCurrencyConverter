@@ -9,6 +9,10 @@
  * 
  * Provides methods to build the frame, retrieve elements within it, and update
  * the frame's content based on a given price element.
+ * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class ExtendedPriceFrame extends PriceFrame {

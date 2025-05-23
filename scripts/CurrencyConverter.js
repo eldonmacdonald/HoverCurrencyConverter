@@ -2,6 +2,10 @@
  * The CurrencyConverter class is responsible for converting raw units of
  * one currency to another and formatting the result according to the
  * target currency's locale.
+ * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class CurrencyConverter {

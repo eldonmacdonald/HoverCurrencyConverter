@@ -7,6 +7,10 @@
  * 
  * Used to determine if a conversion is necessary and to provide both original
  * and converted price data for UI display.
+ * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class ExtendedPriceElement extends RangedPriceElement {

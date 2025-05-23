@@ -8,6 +8,9 @@
  * 2. Call `buildPriceElementsFromCurrencySymbolElementArray` with an array of 
  *    elements containing currency symbols to generate `PriceElement` objects.
  * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class PriceElementBuilder {

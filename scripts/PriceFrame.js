@@ -8,6 +8,9 @@
  * 3. Use `movePriceDivToPoint` to reposition the `priceDiv` within the iframe.
  * 4. Use `showPriceDiv` and `hidePriceDiv` to control the visibility of the `priceDiv`.
  * 
+ * Github Copilot was used for some code snippets, comments and debugging in this
+ * class.
+ * 
  * @author Eldon MacDonald
  */
 class PriceFrame {
