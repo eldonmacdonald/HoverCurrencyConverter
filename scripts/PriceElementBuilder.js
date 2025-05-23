@@ -193,6 +193,15 @@ class PriceElementBuilder {
         throw new Error("child not found in parent element");
     }
 
+    /**
+     * Builds a RangedPriceElement from a string price and a DOM Range.
+     * Cleans the price string, parses it, converts it, and determines the bounding element.
+     * 
+     * @param {string} stringPrice - The price as a string (may include non-numeric characters).
+     * @param {Range} range - The DOM Range representing the price's location.
+     * @returns {RangedPriceElement} The constructed RangedPriceElement.
+     * @throws {Error} If the price cannot be parsed as a float.
+     */
     buildRangedPriceElement(stringPrice, range) {
         //remove any characters that could not be part of the price
         const cleanPrice = stringPrice.replace(/[^\d\.]+/g, '');
@@ -219,6 +228,16 @@ class PriceElementBuilder {
         );
     }
 
+    /**
+     * Builds an ExtendedPriceElement from a string price and a DOM Range.
+     * Cleans the price string, parses it, converts it, and determines the bounding element.
+     * Includes both the original and converted price/currency information.
+     * 
+     * @param {string} stringPrice - The price as a string (may include non-numeric characters).
+     * @param {Range} range - The DOM Range representing the price's location.
+     * @returns {ExtendedPriceElement} The constructed ExtendedPriceElement.
+     * @throws {Error} If the price cannot be parsed as a float.
+     */
     buildExtendedPriceElement(stringPrice, range) {
         const cleanPrice = stringPrice.replace(/[^\d\.]+/g, '');
 
