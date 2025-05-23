@@ -6,6 +6,7 @@
  * 
  * Provides a method to get the bounding rectangle of the price, using the range
  * if possible, or falling back to the bounding element.
+ * @author Eldon MacDonald
  */
 class RangedPriceElement extends PriceElement {
 
@@ -18,11 +19,6 @@ class RangedPriceElement extends PriceElement {
      */
     constructor(displayPrice, boundingElem, range) {
         super(displayPrice, boundingElem);
-
-        /**
-         * The DOM Range representing the price's location in the document.
-         * @type {Range}
-         */
         this.range = range;
     }
 
