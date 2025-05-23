@@ -12,9 +12,6 @@
  * - `getNodesWithTextInRange`: Retrieves nodes containing text within a specified range.
  * - `getRegexRangeInNodeArray`: Finds the range of a regex match within a node array.
  * 
- * @param {RegExp} currencyRegex - Regular expression to match currency symbols.
- * @param {Object} converter - An object responsible for currency conversion.
- * 
  * @author Eldon MacDonald
  */
 class RegexPriceElementFinder {
@@ -255,6 +252,16 @@ class RegexPriceElementFinder {
         return range;
     }
 
+    /**
+     * Finds the starting index of the concatenated text of innerArr within the concatenated text of outerArr,
+     * ensuring the match is within the specified start and end indices.
+     * 
+     * @param {Array<Node>} outerArr - The array of nodes representing the outer text.
+     * @param {Array<Node>} innerArr - The array of nodes representing the inner text to locate.
+     * @param {number} startIndex - The minimum index in outerArr text to consider.
+     * @param {number} endIndex - The maximum index in outerArr text to consider.
+     * @returns {number} The starting index of innerArr's text within outerArr's text.
+     */
     getStartOfNodeArrayTextInOtherNodeArrayText(outerArr, innerArr, startIndex, endIndex) {
         // Get text content of outer array
         let outerArrText = ""
@@ -290,6 +297,15 @@ class RegexPriceElementFinder {
         return indexOfInnerArrTextMatchInOuterArrText;
     }
 
+    /**
+     * Determines if one range (inner) overlaps with another (outer).
+     * 
+     * @param {number} outerRangeStart - Start index of the outer range.
+     * @param {number} outerRangeEnd - End index of the outer range.
+     * @param {number} innerRangeStart - Start index of the inner range.
+     * @param {number} innerRangeEnd - End index of the inner range.
+     * @returns {boolean} True if the inner range overlaps with the outer range, false otherwise.
+     */
     isRangeInOtherRange(outerRangeStart, outerRangeEnd, 
         innerRangeStart, innerRangeEnd) {
         
@@ -302,6 +318,12 @@ class RegexPriceElementFinder {
         return withinRange;
     }
 
+    /**
+     * Escapes a string so it can be safely used as a literal in a regular expression.
+     * 
+     * @param {string} string - The string to escape.
+     * @returns {string} The escaped string, safe for use in RegExp constructors.
+     */
     stringToRegex(string) {
         return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
     }
