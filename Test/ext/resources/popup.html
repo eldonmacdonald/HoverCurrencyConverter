@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hover-Over Currency Converter Popup</title>
+</head>
+<style>
+    body {
+        width: 200px;
+        margin: 0;
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        color: white;
+    }
+    main {
+        background-color: rgb(65, 65, 65);
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+        align-items: center;
+    }
+    h1 {
+        text-decoration:underline;
+    }
+    p{
+        margin: 0;
+        color: red;
+        background-color: white;
+        display: none;
+    }
+</style>
+<body>
+    <main>
+        <section>
+            <label for="convert-to">I want to convert to:</label>
+            <select id="convert-to">
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="NZD">NZD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="INR">INR</option>
+            </select>
+        </section>
+        <section>
+            <label for="convert-from">Convert from:</label>
+            <select id="convert-from">
+                <option value="AUTODETECT">Auto-detect</option>
+                <option value="USD">USD</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="NZD">NZD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="INR">INR</option>
+            </select>
+        </section>
+        <section>
+            <p id="reload-message">You must reload the page for changes to take effect.</p>
+        </section>
+    </main>
+</body>
+<script src="popup.js"></script>
+</html>
