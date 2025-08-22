@@ -2,4 +2,4 @@
 Official downloads are available on the Chrome Web Store:
 https://chromewebstore.google.com/detail/hover-currency-converter/maokaaekcohcopnmlgompjpjbeenodon
 
-Tests require NPM, but are generally not up to date anyway.
+Tests require NPM.
