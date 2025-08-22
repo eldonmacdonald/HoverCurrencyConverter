@@ -115,7 +115,7 @@ class PageManager {
                 this.exchangeRates,
                 this.localeFormat
             );
-            let regexPriceElementFinder = new RegexPriceElementFinder(/(\$|€|£|₹)/g, converter);
+            let regexPriceElementFinder = new RegexPriceElementFinder(/(\$|€|£|₹|¥)/g, converter);
             this.currencyContexts.push(regexPriceElementFinder);
             return;
         }
@@ -124,6 +124,7 @@ class PageManager {
         this.createEuroContexts();
         this.createPoundContexts();
         this.createRupeeContexts();
+        this.createYenAndYuanContexts();
     }
 
     /**
@@ -272,6 +273,65 @@ class PageManager {
         let regexPriceElementFinder = new RegexPriceElementFinder(/₹/g, converter);
         this.currencyContexts.push(regexPriceElementFinder);
     }
+
+     /**
+     * Creates contexts for ¥-based currencies (JPY, CNY).
+     * Also determines the default currency to use for generic ¥ signs based on the page URL.
+     */
+    createYenAndYuanContexts() {
+        let JPYConverter = new CurrencyConverter(
+            "JPY",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        const JPYPrefixes = [
+            "JP\\s*\\¥",
+            "JP\\s*",
+            "¥\\s*JP",
+            "¥\\s*JPY"
+        ]
+        const JPYPrefixRegex = new RegExp(`(${JPYPrefixes.join("|")})`, "g");
+        let JPYRegexPriceElementFinder = 
+            new RegexPriceElementFinder(JPYPrefixRegex, JPYConverter);
+        this.currencyContexts.push(JPYRegexPriceElementFinder);
+
+        let CNYConverter = new CurrencyConverter(
+            "JPY",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        const CNYPrefixes = [
+            "CN\\s*\\¥",
+            "CN\\s*",
+            "¥\\s*CN",
+            "¥\\s*CNY"
+        ]
+        const CNYPrefixRegex = new RegExp(`(${CNYPrefixes.join("|")})`, "g");
+        let CNYRegexPriceElementFinder = 
+            new RegexPriceElementFinder(CNYPrefixRegex, CNYConverter);
+        this.currencyContexts.push(CNYRegexPriceElementFinder);
+
+        const href = window.location.href.toLowerCase();
+        let defaultToConvertFrom = "JPY"
+        if(href.includes(".cn") || href.includes("zh-cn") 
+            || href.includes("zh_cn") || href.includes("/cn/")) {
+
+            defaultToConvertFrom = "CNY"
+        }
+        const allPrefixes = JPYPrefixes
+            .concat(CNYPrefixes);
+        const noPrefixRegex = new RegExp(`(?<!${allPrefixes.join("|")})¥`);
+        let genericConverter = new CurrencyConverter(
+            defaultToConvertFrom, 
+            this.convertToCurrency, 
+            this.exchangeRates,
+            this.localeFormat
+        );
+        this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, 
+            genericConverter))
+    } 
 
     /**
      * Handles mouse movement events.

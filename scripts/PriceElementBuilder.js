@@ -113,7 +113,7 @@ class PriceElementBuilder {
 
         if(!priceMatch || priceMatch.length <= 0) {
             throw new Error("Tried to find the price associated with the " +
-                "following element text, but found less than " + matchNum +
+                "following element text, but found no" +
                 " price regex matches: " +
                 elemText);
         }

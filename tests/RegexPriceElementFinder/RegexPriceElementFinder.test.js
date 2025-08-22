@@ -72,7 +72,7 @@ describe('RegexPriceElementFinder.js', () => {
         })
 
         expect(ret.length).toEqual(2);
-        expect(ret[0].text).toEqual('$14.99 ')
+        expect(ret[0].text).toEqual('$14.99')
         expect(ret[1].text).toEqual('$200.00');
     })
 
