@@ -25,9 +25,10 @@ class RegexPriceElementFinder {
      * @param {RegExp} currencyRegex - Regular expression to match currency symbols.
      * @param {CurrencyConverter} converter - An object responsible for currency conversion.
      */
-    constructor(currencyRegex, converter) {
+    constructor(currencyRegex, converter, priceRegexFirst) {
         this.currencyRegex = currencyRegex;
         this.converter = converter;
+        this.priceRegexFirst = priceRegexFirst;
 
         this.priceElementBuilder = new PriceElementBuilder(converter);
 
@@ -38,17 +39,177 @@ class RegexPriceElementFinder {
         this.priceRegex = /\s*[\d,]+(\.[\d]{2})?/;
     }
 
-    updatePriceElements() {
+    updatePriceElements(pageString, pageTextToNode) {
         this.priceElements = []
-        let textsAndRanges = this.getPriceElementsTextAndRange(document.body);
+        let textsAndRanges;
+        if(this.priceRegexFirst) {
+            textsAndRanges = this.getPriceElementsTextAndRange(document.body);
+        } else {
+            textsAndRanges = this.getPriceElementsTextAndRangeFromPageString(pageString, pageTextToNode);
+        }
 
         textsAndRanges.forEach(textAndRange => {
-            let newElem = this.priceElementBuilder.buildExtendedPriceElement(
-                textAndRange.text,
-                textAndRange.range
-            );
-            this.priceElements.push(newElem);
+            try {
+                let newElem = this.priceElementBuilder.buildExtendedPriceElement(
+                    textAndRange.text,
+                    textAndRange.range,
+                    this.converter,
+                );
+                this.priceElements.push(newElem);
+            } catch(e) {
+                console.warn(e);
+            }
         })
+    }
+
+    getPriceElementsTextAndRangeFromPageString(pageString, pageTextToNode) {
+        let localPageString = new String(pageString);
+
+        // Combine currency and price regexes
+        // When currency comes first, a termination character is necessary to ensure greedy matching 
+        let fullPriceRegexCurrencyFirst = new RegExp(this.currencyRegex.source + 
+            this.priceRegex.source + 
+            "[\\s\\.\\,\\d]*(?=[^\\.\\d\\,\\s])", "gd");
+
+        // When currency comes last, no need for a termination character - the currency symbol is the
+        // termination character
+        let fullPriceRegexCurrencyLast = new RegExp(this.priceRegex.source + 
+            this.currencyRegex.source, "gd");
+        
+        let regex;
+        if(this.priceRegexFirst) {
+            regex = fullPriceRegexCurrencyFirst;
+        } else {
+            regex = fullPriceRegexCurrencyLast;
+        }
+
+        let currencyMatches = [...localPageString.matchAll(regex)];
+
+        // Find the text and range for each currency match
+        let textsAndRanges = []
+        currencyMatches.forEach((match) => {
+            
+            let startIndex = match.index;
+            let endIndex = match.indices[0][1] - 1;
+            let origStartNode = pageTextToNode.getNodeAtIdx(startIndex);
+            let origEndNode = pageTextToNode.getNodeAtIdx(endIndex);
+            let origStartNodeText = origStartNode.textContent.replace(/\s+/g, '');
+            let origEndNodeText = origEndNode.textContent.replace(/\s+/g, '');
+
+            let ret = this.getPriceElemsMaxLayersAway(pageTextToNode, startIndex, endIndex, 2);
+            let startNode = ret.startNode;
+            let endNode = ret.endNode;
+            let startNodeText = startNode.textContent.replace(/\s+/g, '');
+            let endNodeText = endNode.textContent.replace(/\s+/g, '');
+
+            let startNodeTextIdxInMatch; 
+            if(startNodeText.length < match[0].length) {
+                startNodeTextIdxInMatch = match[0].search(startNodeText.replace(/[.*+?^${}()]/g, "\\$&"));
+            } else {
+                startNodeTextIdxInMatch = 0;
+            }
+
+            if(startNodeTextIdxInMatch < 0) {
+                throw Error(`could not find start node text ${startNodeText} in matched text ${match[0]}`);
+            }
+
+            let endNodeTextIdxInMatch; 
+            if(endNodeText.length < match[0].length) {
+                endNodeTextIdxInMatch = match[0].search(endNodeText.replace(/[.*+?^${}()]/g, "\\$&"));
+            } else {
+                endNodeTextIdxInMatch = 0;
+            }
+
+            if(endNodeTextIdxInMatch < 0) {
+                throw Error(`could not find end node text ${endNodeText} in matched text ${match[0]}`);
+            }
+            
+            let fullTextToFind = match[0].slice(startNodeTextIdxInMatch, endNodeTextIdxInMatch + endNodeText.length);
+
+            // Get the text of the regex match and reduce its size to the length of the
+            // start node
+            let textToFind = fullTextToFind.slice(0, startNode.textContent.replace(/\s+/g, '').length);
+            // Allow for white space in between any of the characters
+            let textToFindRegex = new RegExp(textToFind.split("").join("\\s*").replace(/[.+?^${}()]/g, "\\$&"));
+
+            let startOffsetMatch = startNode.textContent.match(textToFindRegex);
+
+            // If no match is found, log a warning and continue
+            if(startOffsetMatch == null) {
+                return;
+            }
+
+            let startOffset = startOffsetMatch.index;
+
+            textToFind = fullTextToFind.slice(-endNode.textContent.replace(/\s+/g, '').length);
+            textToFindRegex = new RegExp(textToFind.split("").join("\\s*").replace(/[.+?^${}()]/g, "\\$&"));
+
+            let endOffset = endNode.textContent.match(textToFindRegex).index + textToFind.length - 1;
+
+            let range = new Range();
+            range.setStart(startNode, startOffset);
+            range.setEnd(endNode, endOffset);
+
+            let textAndRange = new Object();
+            textAndRange.text = fullTextToFind;
+            textAndRange.range = range;
+
+            textsAndRanges.push(textAndRange);
+        })
+
+        return textsAndRanges;
+    }
+
+    /**
+     * Get the number of layers between two children and their common container ancestor
+     */
+    getLayersToAncestor(elem, commonAncestor) {
+        let layers = 0;
+
+        let node = elem
+        while(node != commonAncestor && node != null) {
+            layers++;
+            node = node.parentElement;
+        }
+
+        if(node == null) {
+            throw Error(`commonAncestor argument is not an ancestor of element ${elem}`);
+        }
+
+        return layers;     
+    }
+
+    /**
+     * 
+     */
+    getPriceElemsMaxLayersAway(pageTextToNode, startNodeIdx, endNodeIdx, maxLayers) {
+
+        let startNode = pageTextToNode.getNodeAtIdx(startNodeIdx);
+        let endNode = pageTextToNode.getNodeAtIdx(endNodeIdx);
+
+        let range = new Range();
+        range.setStart(startNode, 0);
+        range.setEnd(endNode, 0);
+        
+        let startNodeLayersToAncestor = this.getLayersToAncestor(startNode, range.commonAncestorContainer);
+        let endNodeLayersToAncestor = this.getLayersToAncestor(endNode, range.commonAncestorContainer);
+
+        if(startNodeLayersToAncestor > maxLayers || endNodeLayersToAncestor > maxLayers) {
+            if(startNodeLayersToAncestor > endNodeLayersToAncestor) {
+                let newEndNodeIdx = pageTextToNode.getPrevIdx(endNodeIdx);
+                return this.getPriceElemsMaxLayersAway(pageTextToNode, startNodeIdx, newEndNodeIdx);
+            }
+            else {
+                let newStartNodeIdx = pageTextToNode.getNextIdx(startNodeIdx);
+                return this.getPriceElemsMaxLayersAway(pageTextToNode, newStartNodeIdx, endNodeIdx);
+            }
+        } else {
+            let ret = new Object();
+            ret.startNode = startNode;
+            ret.endNode = endNode;
+            return ret;
+        }
+
     }
 
     /**

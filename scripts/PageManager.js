@@ -59,6 +59,8 @@ class PageManager {
 
         this.createCurrencyContexts();
 
+        this.pageTextToNode = new TextToNode();
+
         document.addEventListener("mousemove", 
             this.manageMouseMove.bind(this), 
             false
@@ -90,9 +92,11 @@ class PageManager {
      * Updates all currency contexts to refresh their price elements.
      */
     onPageMutation() {
+        this.pageString = this.updatePageString(document.body);
         this.currencyContexts.forEach(currencyContext => {
-            currencyContext.updatePriceElements();
-        })
+            currencyContext.updatePriceElements(this.pageString, this.pageTextToNode);
+        });
+
     }
 
     /**
@@ -115,8 +119,11 @@ class PageManager {
                 this.exchangeRates,
                 this.localeFormat
             );
-            let regexPriceElementFinder = new RegexPriceElementFinder(/(\$|€|£|₹|¥)/g, converter);
-            this.currencyContexts.push(regexPriceElementFinder);
+            let regexPriceElementFinderSymbolFirst = new RegexPriceElementFinder(/(\$|€|£|₹|¥)/g, converter, true);
+            let regexPriceElementFinderSymbolAfter = new RegexPriceElementFinder(/zł/g, converter, false);
+
+            this.currencyContexts.push(regexPriceElementFinderSymbolAfter);
+            this.currencyContexts.push(regexPriceElementFinderSymbolFirst);
             return;
         }
 
@@ -125,6 +132,7 @@ class PageManager {
         this.createPoundContexts();
         this.createRupeeContexts();
         this.createYenAndYuanContexts();
+        this.createPoleContexts();
     }
 
     /**
@@ -148,7 +156,7 @@ class PageManager {
         ]
         const USDPrefixRegex = new RegExp(`(${USDPrefixes.join("|")})`, "g");
         let USDRegexPriceElementFinder = 
-            new RegexPriceElementFinder(USDPrefixRegex, USDConverter);
+            new RegexPriceElementFinder(USDPrefixRegex, USDConverter, true);
         this.currencyContexts.push(USDRegexPriceElementFinder);
 
         let CADConverter = new CurrencyConverter(
@@ -165,7 +173,7 @@ class PageManager {
         ]
         const CADPrefixRegex = new RegExp(`(${CADPrefixes.join("|")})`, "g");
         let CADRegexPriceElementFinder = 
-            new RegexPriceElementFinder(CADPrefixRegex, CADConverter);
+            new RegexPriceElementFinder(CADPrefixRegex, CADConverter, true);
         this.currencyContexts.push(CADRegexPriceElementFinder);
 
         let NZDConverter = new CurrencyConverter(
@@ -180,7 +188,7 @@ class PageManager {
         ]
         const NZDPrefixRegex = new RegExp(`(${NZDPrefixes.join("|")})`, "g");
         let NZDRegexPriceElementFinder = 
-            new RegexPriceElementFinder(NZDPrefixRegex, NZDConverter);
+            new RegexPriceElementFinder(NZDPrefixRegex, NZDConverter, true);
         this.currencyContexts.push(NZDRegexPriceElementFinder);
 
         let AUDConverter = new CurrencyConverter(
@@ -199,7 +207,7 @@ class PageManager {
         ]
         const AUDPrefixRegex = new RegExp(`(${AUDPrefixes.join("|")})`, "g");
         let AUDRegexPriceElementFinder = 
-            new RegexPriceElementFinder(AUDPrefixRegex, AUDConverter);
+            new RegexPriceElementFinder(AUDPrefixRegex, AUDConverter, true);
         this.currencyContexts.push(AUDRegexPriceElementFinder);
 
         const href = window.location.href.toLowerCase();
@@ -229,7 +237,7 @@ class PageManager {
             this.exchangeRates,
             this.localeFormat
         );
-        this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, genericConverter))
+        this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, genericConverter, true))
     }
 
     /**
@@ -242,7 +250,21 @@ class PageManager {
             this.exchangeRates,
             this.localeFormat
         )
-        let regexPriceElementFinder = new RegexPriceElementFinder(/€/g, converter);
+        let regexPriceElementFinder = new RegexPriceElementFinder(/€/g, converter, true);
+        this.currencyContexts.push(regexPriceElementFinder);
+    }
+
+    /**
+     * Creates a context for detecting and converting Polish (zł) prices.
+     */
+    createPoleContexts() {
+        let converter = new CurrencyConverter(
+            "PLN",
+            this.convertToCurrency,
+            this.exchangeRates,
+            this.localeFormat
+        )
+        let regexPriceElementFinder = new RegexPriceElementFinder(/zł/g, converter, false);
         this.currencyContexts.push(regexPriceElementFinder);
     }
 
@@ -256,7 +278,7 @@ class PageManager {
             this.exchangeRates,
             this.localeFormat
         )
-        let regexPriceElementFinder = new RegexPriceElementFinder(/£/g, converter);
+        let regexPriceElementFinder = new RegexPriceElementFinder(/£/g, converter, true);
         this.currencyContexts.push(regexPriceElementFinder);
     }
 
@@ -270,7 +292,7 @@ class PageManager {
             this.exchangeRates,
             this.localeFormat
         )
-        let regexPriceElementFinder = new RegexPriceElementFinder(/₹/g, converter);
+        let regexPriceElementFinder = new RegexPriceElementFinder(/₹/g, converter, true);
         this.currencyContexts.push(regexPriceElementFinder);
     }
 
@@ -293,7 +315,7 @@ class PageManager {
         ]
         const JPYPrefixRegex = new RegExp(`(${JPYPrefixes.join("|")})`, "g");
         let JPYRegexPriceElementFinder = 
-            new RegexPriceElementFinder(JPYPrefixRegex, JPYConverter);
+            new RegexPriceElementFinder(JPYPrefixRegex, JPYConverter, true);
         this.currencyContexts.push(JPYRegexPriceElementFinder);
 
         let CNYConverter = new CurrencyConverter(
@@ -310,7 +332,7 @@ class PageManager {
         ]
         const CNYPrefixRegex = new RegExp(`(${CNYPrefixes.join("|")})`, "g");
         let CNYRegexPriceElementFinder = 
-            new RegexPriceElementFinder(CNYPrefixRegex, CNYConverter);
+            new RegexPriceElementFinder(CNYPrefixRegex, CNYConverter, true);
         this.currencyContexts.push(CNYRegexPriceElementFinder);
 
         const href = window.location.href.toLowerCase();
@@ -330,7 +352,7 @@ class PageManager {
             this.localeFormat
         );
         this.currencyContexts.push(new RegexPriceElementFinder(noPrefixRegex, 
-            genericConverter))
+            genericConverter, true))
     } 
 
     /**
@@ -445,4 +467,92 @@ class PageManager {
 
         this.priceFrame.hidePriceDiv();
     }
+
+    /**
+     * Checks if the associated DOM element is visible in the viewport.
+     * 
+     * @returns {boolean} True if the element is visible, false otherwise.
+     */
+    isVisible(elem) {
+        const rect = elem.getBoundingClientRect();
+
+        // Check if the element is outside the viewport
+        if (
+            rect.bottom > (window.innerHeight || document.documentElement.clientHeight) ||
+            rect.right > (window.innerWidth || document.documentElement.clientWidth) ||
+            rect.left < 0 || rect.top < 0
+        ) {
+            return false;
+        }
+
+        let currentElement = elem;
+
+        // Traverse up the DOM tree to check visibility and opacity
+        while (currentElement) {
+            const computedStyle = window.getComputedStyle(currentElement);
+
+            // Check if the element or any ancestor is hidden
+            if (computedStyle.visibility === "hidden") {
+                return false;
+            }
+
+            // Check if the element or any ancestor is clipped
+            if (computedStyle.clip === "rect(0px, 0px, 0px, 0px)") {
+                return false;
+            }
+
+            // Check if the element or any ancestor has invisible clip-path
+            if (computedStyle.clipPath == "inset(50%)") {
+                return false;
+            }
+
+
+            // Check if the element or any ancestor has zero opacity
+            const opacity = parseFloat(computedStyle.opacity);
+            if (opacity === 0) {
+                return false;
+            }
+
+            currentElement = currentElement.parentElement; // Move up the DOM tree
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Get a string of all useful text on the site
+     */
+    updatePageString(startingElement) {
+        const treeWalker = document.createTreeWalker(
+            startingElement,
+            NodeFilter.SHOW_TEXT,
+            null
+        );
+        let contentString = ""
+
+        this.pageTextToNode.reset();
+
+        let node;
+        while((node = treeWalker.nextNode())) {
+            // If the text likely does not contain a part of the price, skip
+            if(node.textContent.length > 1000 ||
+                node.textContent.replace(/\s+/g, '') == ''
+            ) {
+                
+                continue;
+            }
+
+            let cleanedNodeText = node.textContent.replace(/\s+/g, '');
+
+            const start = contentString.length;
+            const end = contentString.length + cleanedNodeText.length;
+            this.pageTextToNode.addTextToNodeRange(start, end, node);
+            contentString += cleanedNodeText;
+        }
+        return contentString;
+    }
 }
+
+
+

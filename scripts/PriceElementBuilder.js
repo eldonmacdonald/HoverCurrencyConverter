@@ -242,11 +242,12 @@ class PriceElementBuilder {
      * @throws {Error} If the price cannot be parsed as a float.
      */
     buildExtendedPriceElement(stringPrice, range) {
-        const cleanPrice = stringPrice.replace(/[^\d\.]+/g, '');
+        const cleanPrice = stringPrice.replace(/[^\d\.\,]+/g, '');
+        const formattedPrice = this.delocatePriceString(cleanPrice);
 
         let priceFloat
         try{
-            priceFloat = parseFloat(cleanPrice);
+            priceFloat = parseFloat(formattedPrice);
         } catch (e) {
             throw new Error(`could not find price number in string ` +
                 `${stringPrice}`)
@@ -267,5 +268,24 @@ class PriceElementBuilder {
             boundingElem,
             range
         );
+    }
+
+    delocatePriceString(priceString) {
+        const checkCleanRegex = /^[\d\.\,]+$/g;
+        if(!checkCleanRegex.test(priceString)) {
+            throw new Error(`string ${priceString} contains invalid characters`);
+        }
+
+        // Check if a period or comma is used as the fractional identifier
+        const commaIdx = priceString.indexOf(",");
+        const periodIdx = priceString.indexOf('.');
+        if(periodIdx > commaIdx || (periodIdx < 0 && commaIdx < priceString.length - 3)) {
+            let ret = priceString.replace(',', '');
+            return ret;
+        } else {
+            let ret = priceString.replace('.', '');
+            ret = ret.replace(',', '.');
+            return ret
+        }
     }
 }
