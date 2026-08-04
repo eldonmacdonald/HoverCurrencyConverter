@@ -250,9 +250,8 @@ class PageManager {
             this.exchangeRates,
             this.localeFormat
         )
-        let regexPriceElementFinderSymbolFirst = new RegexPriceElementFinder(/€/g, converter, true);
-        let regexPriceElementFinderSymbolLast = new RegexPriceElementFinder(/€/g, converter, false);
-        this.currencyContexts.push(regexPriceElementFinderSymbolFirst, regexPriceElementFinderSymbolLast);
+        let regexPriceElementFinder = new RegexPriceElementFinder(/€/g, converter, true);
+        this.currencyContexts.push(regexPriceElementFinder);
     }
 
     /**
